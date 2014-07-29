@@ -10,3 +10,5 @@ TABLE mdp
   speed_all integer,
   concentration integer
 )
+
+/* em Beschreibung tung Spalte trong Tabelle nay vao Facebook cho anh. */
