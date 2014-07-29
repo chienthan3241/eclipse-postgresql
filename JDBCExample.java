@@ -17,22 +17,16 @@ public class JDBCExample {
 	         System.exit(0); 
 		}
  
-		try { 
-			c = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/test", "postgres", "Password2013");
+		try { 	/*connection string: "jdbc:postgresql://host:port/dbname", "username", "password"*/
+			c = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/tiep", "postgres", "Password2013");
 			stmt = c.createStatement();
-			String sql = "select * from myschema.tb_test";
+			String sql = "select max(speed_pkw) as max_speed_pkw from public.mdp where concentration <>-1";
 			ResultSet rs = stmt.executeQuery(sql);
 			while ( rs.next() ) {
-	            int id = rs.getInt("id");
-	            String  name = rs.getString("name");
-	            int age  = rs.getInt("age");
-	            
-	            System.out.println( "ID = " + id );
-	            System.out.println( "NAME = " + name );
-	            System.out.println( "AGE = " + age );
-	            
+	            int max_speed_pkw = rs.getInt("max_speed_pkw");   
+	            System.out.println( "Max Speed PKW : " + max_speed_pkw );
 	            System.out.println();
-	         }
+	         }			
 	         rs.close();
 	         stmt.close();
 	         c.close();
