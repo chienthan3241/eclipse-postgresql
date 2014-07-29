@@ -1,0 +1,12 @@
+TABLE mdp
+(
+  site integer NOT NULL,
+  tsp timestamp with time zone NOT NULL,
+  flow_lkw integer,
+  speed_lkw integer,
+  flow_pkw integer,
+  speed_pkw integer,
+  flow_all integer,
+  speed_all integer,
+  concentration integer
+)
