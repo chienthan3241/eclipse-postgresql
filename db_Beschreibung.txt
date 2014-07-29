@@ -1,3 +1,16 @@
+TABLE mst
+(
+  site charater varying(15) NOT NULL,
+  Coords_4326 geometry(Point, 4326),
+  Coords_4258 geometry(Point, 4258),
+  CONSTRAINT mst_pkey PRIMARY KEY (site)
+)
+Coords_4326 geometry là v? trí  kinh tuy?n 
+Coords_4258 geometry là v? trí vi tuy?n
+site là tên c?a máy Induktivschleife (Có 1818 máy do)
+Betreuer c?a em dã s? d?ng Google Earth d? gi?i mã v? trí các máy do
+
+///////////////////////////////////////////////////
 TABLE mdp
 (
   site integer NOT NULL,
@@ -11,4 +24,13 @@ TABLE mdp
   concentration integer
 )
 
-/* em Beschreibung tung Spalte trong Tabelle nay vao Facebook cho anh. */
+Site integer: là tên c?a máy Induktivschleife
+Tsp time: th?i di?m do, tính theo t?ng phút
+Flow_lkw integer: Là s? lu?ng lkw do du?c trong 1 phút
+Speed_lkw integer: Là v?n t?c trung bình c?a lkw tính theo don v? km/h
+Flow_pkw integer: Là s? lu?ng pkw do du?c trong 1 phút
+Speed_pkw integer: Là v?n t?c trung bình c?a pkw tính theo don v? km/h
+Flow_all integer: T?ng s? lu?ng Lkw và Pkw trong 1 phút
+Speed_all integer: V?n t?c trung bình c?a Lkw và Pkw
+Concentration integer: Không quan tr?ng l?m
+//////////////////////////////////////////////////////////////////
