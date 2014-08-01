@@ -32,4 +32,4 @@ WHERE
 ORDER BY site asc, tsp asc<br>
 + trong java sau khi em chay query nay roi se dc 1 Resultset. Voi Resultset nay em co the ghi vao file(xml,json,csv...) hoac dua len 1 Tabelle hien thi tren GUI
 + em xem trong code/sql_xkw_lower40kmh.java la vi du query du lieu tu DB roi ghi ra file duoi dang csv va json.
- 
++ em xem trong code/mygui.java la vi du query du lieu tu DB roi ghi ra table tren swing Jtable (screenshot.jpg) (GUI em co the tao = WindowBuilder plugin)
