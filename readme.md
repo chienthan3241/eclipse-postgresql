@@ -10,8 +10,8 @@
 ------------------------------------------------------------------------------<br>
 
 ///Tim van toc cua xe pkw va lkw < 40kmh////
-+ cai nay don gian la em se viet 1 cau SQL: 
-// vi du tim cho tat cac cac may do , toan bo time trong DB, trong do van toc cua LKW va PKW deu < 40kmh (sap xep theo ten may do tang dan, time tang dan):
++ cai nay don gian la em se viet 1 cau SQL: <br>
+// vi du tim cho tat cac cac may do , toan bo time trong DB, trong do van toc cua LKW va PKW deu < 40kmh (sap xep theo ten may do tang dan, time tang dan):<br>
 SELECT 
 	*
 FROM 
@@ -19,8 +19,8 @@ FROM
 WHERE 
 	(flow_lkw > 0 AND speed_lkw < 40 ) 
 	AND (flow_pkw > 0 AND speed_pkw < 40 )
-ORDER BY site asc, tsp asc
-// vi du em chi muon query tren 1 vai may do thoi thi them vao SQL 1 Beschränkung:
+ORDER BY site asc, tsp asc <br>
+// vi du em chi muon query tren 1 vai may do thoi thi them vao SQL 1 Beschränkung:<br>
 SELECT 
 	*
 FROM 
@@ -29,6 +29,7 @@ WHERE
 	(flow_lkw > 0 AND speed_lkw < 40 ) 
 	AND (flow_pkw > 0 AND speed_pkw < 40 )
 	AND site in (2000000,2000161)
-ORDER BY site asc, tsp asc
-+ trong java sau khi em chay query nay roi se dc 1 Resultset. Voi Resultset nay em co the ghi vao file(json,csv...) hoac dua len 1 Tabelle hien thi tren GUI
-+ em xem trong Folder code 
+ORDER BY site asc, tsp asc<br>
++ trong java sau khi em chay query nay roi se dc 1 Resultset. Voi Resultset nay em co the ghi vao file(xml,json,csv...) hoac dua len 1 Tabelle hien thi tren GUI
++ em xem trong code/sql_xkw_lower40kmh.java la vi du query du lieu tu DB roi ghi ra file duoi dang csv va json.
+ 
