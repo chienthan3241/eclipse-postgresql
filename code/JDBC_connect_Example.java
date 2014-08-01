@@ -18,7 +18,7 @@ public class JDBCExample {
 		}
  
 		try { 	/*connection string: "jdbc:postgresql://host:port/dbname", "username", "password"*/
-			c = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/tiep", "postgres", "Password2013");
+			c = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/detektordaten_hessen", "postgres", "Password2013");
 			stmt = c.createStatement();
 			String sql = "select max(speed_pkw) as max_speed_pkw from public.mdp where concentration <>-1";
 			ResultSet rs = stmt.executeQuery(sql);
@@ -34,7 +34,6 @@ public class JDBCExample {
 			System.out.println("Connection Failed!");
 			e.printStackTrace();
 			return; 
-		} 
-		
+		}		
 	}
 }
