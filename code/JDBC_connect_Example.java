@@ -5,7 +5,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class JDBCExample {
+public class JDBC_connect_Example {
 	public static void main(String[] argv) {
 		System.out.println("-------- PostgreSQL JDBC Connection Testing ------------"); 
 		Connection c = null;
@@ -31,7 +31,7 @@ public class JDBCExample {
 	         stmt.close();
 	         c.close();
 		} catch (SQLException e) { 
-			System.out.println("Connection Failed!");
+			System.out.println("SQL Failed!");
 			e.printStackTrace();
 			return; 
 		}		
