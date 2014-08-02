@@ -1,7 +1,6 @@
 ###Connect to Postgres DB###
-
- ví dụ em có Postgres DB cài trong máy: => sẽ tạo ra DB trên localhost với default port 5432
- em có DB name là detektordaten_hessen restore từ backup file của em => sẽ có schema public + Tabelle mdp + Tabelle mst
+- ví dụ em có Postgres DB cài trong máy: => sẽ tạo ra DB trên localhost với default port 5432
+- em có DB name là detektordaten_hessen restore từ backup file của em => sẽ có schema public + Tabelle mdp + Tabelle mst<br>
 1. Install eclipse
 2. Download jdbc driver http://jdbc.postgresql.org/download.html
 3. New java project -> project ->properties ->java Build Path ->libraries -> add External JARs... -> add JDBC Drivers in Project 
@@ -28,7 +27,7 @@ FROM mdp
 WHERE 
 	(flow_lkw > 0 AND speed_lkw < 40 ) AND 
 	(flow_pkw > 0 AND speed_pkw < 40 ) AND 
-	__site in (2000000,2000161)__
+	site in (2000000,2000161)
 ORDER BY site asc, tsp asc
 ````
 - trong java sau khi em chạy query này rồi sẽ được 1 Resultset. Với Resultset này em có thể ghi dữ liệu đã được lấy từ DB vào file( xml,json,csv...) hoặc đưa lên 1 Tabelle hiển thị trên GUI trong application của em.
