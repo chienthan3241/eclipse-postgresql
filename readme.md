@@ -1,5 +1,5 @@
-###Connect to Postgres DB
-==============
+###Connect to Postgres DB###
+
 - ví dụ em có Postgres DB cài trong máy: => sẽ tạo ra DB trên localhost với default port 5432
 - em có DB name là detektordaten_hessen restore từ backup file của em => sẽ có schema public + Tabelle mdp + Tabelle mst
 1. Install eclipse
@@ -7,11 +7,10 @@
 3. New java project -> project ->properties ->java Build Path ->libraries -> add External JARs... -> add JDBC Drivers in Project 
 4. New void main class JDBC_connect_Example
 5. Xem code from JDBC_connect_Example.java 
+***
 
-
-###Tìm vận tốc của xe pkw và lkw < 40kmh:
-==============
-###### cái này đơn giản là em sẽ viết 1 câu SQL:
+###Tìm vận tốc của xe pkw và lkw < 40kmh:###
+###### cái này đơn giản là em sẽ viết 1 câu SQL:######
 --------------
 - ví dụ tìm cho tất cả các máy đo , không giới hạn time, trong đó vận tốc của LKW và PKW đều < 40kmh (sắp xếp theo tên máy đo tăng dần, time tăng dần):
 ``````SQL
