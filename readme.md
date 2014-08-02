@@ -34,7 +34,7 @@ WHERE
 	site in (2000000,2000161)
 ORDER BY site asc, tsp asc
 ````
-- trong java sau khi em chạy query này rồi sẽ được 1 Resultset. Với Resultset này em có thể ghi dữ liệu đã được lấy từ DB vào file( xml,json,csv...) hoặc đưa lên 1 Tabelle hiển thị trên GUI trong application của em.
+- trong java sau khi em chạy query này rồi sẽ được 1 Resultset. Với Resultset này em có thể ghi dữ liệu đã được lấy từ DB vào file( xml,json,csv...) hoặc đưa lên 1 Tabelle hiển thị trên GUI trong application.
 - em xem file java trong [code/sql_xkw_lower40kmh.java](https://github.com/chienthan3241/eclipse-postgresql/blob/master/code/sql_xkw_lower40kmh.java) là ví dụ query dữ liệu từ DB rồi ghi ra file dưới dạng csv và json.
 - em xem file java trong [code/mygui.java](https://github.com/chienthan3241/eclipse-postgresql/blob/master/code/mygui.java) là ví dụ query dữ liệu từ DB rồi ghi ra table trên GUI Jtable ([screenshot.jpg](https://github.com/chienthan3241/eclipse-postgresql/blob/master/code/screenshot.jpg)) (GUI em có thể tạo rất dễ = WindowBuilder plugin: http://www.eclipse.org/windowbuilder/)
 
