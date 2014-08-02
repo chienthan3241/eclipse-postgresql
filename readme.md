@@ -5,8 +5,8 @@
 4. Download jdbc driver http://jdbc.postgresql.org/download.html
 5. New java project -> project ->properties ->java Build Path ->libraries -> add External JARs... -> add JDBC Drivers in Project 
 6. New void main class JDBC_connect_Example
-7. Xem code from JDBC_connect_Example.java 
-___
+7. Xem code from JDBC_connect_Example.java <br>
+--------------------------------------------------------------
 
 ###Tìm vận tốc của xe pkw và lkw < 40kmh:###
 ###### cái này đơn giản là em sẽ viết 1 câu SQL:######
@@ -20,7 +20,7 @@ WHERE
 	(flow_pkw > 0 AND speed_pkw < 40 ) 
 ORDER BY site asc, tsp asc 
 ``````
-> ví dụ em chỉ muốn query trên 1 vài máy đo thôi thi thêm vào SQL 1 điều kiện: 
+> ví dụ em chỉ muốn query trên 1 vài máy đo thôi thi thêm vào SQL 1 điều kiện:<br> 
 > **AND site in (2000000,2000161)**:
 
 ````SQL
