@@ -6,7 +6,7 @@
 2. Download jdbc driver http://jdbc.postgresql.org/download.html
 3. New java project -> project ->properties ->java Build Path ->libraries -> add External JARs... -> add JDBC Drivers in Project 
 4. New void main class JDBC_connect_Example
-5. Xem code from JDBC_connect_Example.java 
+5. Xem code from [JDBC_connect_Example.java](https://github.com/chienthan3241/eclipse-postgresql/blob/master/code/JDBC_connect_Example.java)
 
 ___
 
@@ -35,5 +35,5 @@ WHERE
 ORDER BY site asc, tsp asc
 ````
 - trong java sau khi em chạy query này rồi sẽ được 1 Resultset. Với Resultset này em có thể ghi dữ liệu đã được lấy từ DB vào file( xml,json,csv...) hoặc đưa lên 1 Tabelle hiển thị trên GUI trong application của em.
-- em xem file java trong code/sql_xkw_lower40kmh.java là ví dụ query dữ liệu từ DB rồi ghi ra file dưới dạng csv và json.
-- em xem file java trong code/mygui.java là ví dụ query dữ liệu từ DB rồi ghi ra table trên GUI Jtable (screenshot.jpg) (GUI em có thể tạo rất dễ = WindowBuilder plugin link: http://www.eclipse.org/windowbuilder/)
+- em xem file java trong [code/sql_xkw_lower40kmh.java](https://github.com/chienthan3241/eclipse-postgresql/blob/master/code/sql_xkw_lower40kmh.java) là ví dụ query dữ liệu từ DB rồi ghi ra file dưới dạng csv và json.
+- em xem file java trong [code/mygui.java](https://github.com/chienthan3241/eclipse-postgresql/blob/master/code/mygui.java) là ví dụ query dữ liệu từ DB rồi ghi ra table trên GUI Jtable ([screenshot.jpg](https://github.com/chienthan3241/eclipse-postgresql/blob/master/code/screenshot.jpg)) (GUI em có thể tạo rất dễ = WindowBuilder plugin link: http://www.eclipse.org/windowbuilder/)
