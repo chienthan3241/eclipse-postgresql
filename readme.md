@@ -1,6 +1,6 @@
 ///////////////Connect to Postgres DB///////////////////////<br>
-//vi du em co Postgres DB cai trong may: => se tao ra DB tren localhost voi default port 5432 <br>
-//em co DB name la detektordaten_hessen wiederhergestellt tu backup file cua em => se co schema public + Tabelle mdp
+//ví dụ em có Postgres DB cài trong máy: => sẽ tạo ra DB trên localhost với default port 5432 <br>
+//em có DB name là detektordaten_hessen restore từ backup file của em => sẽ có schema public + Tabelle mdp + Tabelle mst
 
 1. install eclipse
 2. download jdbc driver http://jdbc.postgresql.org/download.html
@@ -20,7 +20,7 @@ WHERE
 	(flow_lkw > 0 AND speed_lkw < 40 ) 
 	AND (flow_pkw > 0 AND speed_pkw < 40 )
 ORDER BY site asc, tsp asc <br>
-// vi du em chi muon query tren 1 vai may do thoi thi them vao SQL 1 Beschränkung:<br>
+// ví dụ em chỉ muốn query trên 1 vài máy đo thôi thi thêm vào SQL 1 điều kiện:<br>
 SELECT 
 	*
 FROM 
@@ -30,6 +30,6 @@ WHERE
 	AND (flow_pkw > 0 AND speed_pkw < 40 )
 	AND site in (2000000,2000161)
 ORDER BY site asc, tsp asc<br>
-+ trong java sau khi em chay query nay roi se dc 1 Resultset. Voi Resultset nay em co the ghi vao file(xml,json,csv...) hoac dua len 1 Tabelle hien thi tren GUI
-+ em xem trong code/sql_xkw_lower40kmh.java la vi du query du lieu tu DB roi ghi ra file duoi dang csv va json.
-+ em xem trong code/mygui.java la vi du query du lieu tu DB roi ghi ra table tren swing Jtable (screenshot.jpg) (GUI em co the tao = WindowBuilder plugin)
++ trong java sau khi em chạy query này rồi sẽ được 1 Resultset. Với Resultset này em có thể ghi dữ liệu đã được lấy từ DB vào file( xml,json,csv...) hoặc đưa lên 1 Tabelle hiển thị trên GUI trong application của em.
++ em xem file java trong code/sql_xkw_lower40kmh.java là ví dụ query dữ liệu từ DB rồi ghi ra file dưới dạng csv và json.
++ em xem file java trong code/mygui.java là ví dụ query dữ liệu từ DB rồi ghi ra table trên GUI Jtable (screenshot.jpg) (GUI em có thể tạo rất dễ = WindowBuilder plugin link: http://www.eclipse.org/windowbuilder/)
