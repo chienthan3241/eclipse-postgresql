@@ -1,11 +1,12 @@
 ###Connect to Postgres DB###
-1. Ví dụ em có Postgres DB cài trong máy: => sẽ tạo ra DB trên localhost với default port 5432
-2. Em có DB name là detektordaten_hessen restore từ backup file của em => sẽ có schema public + Tabelle mdp + Tabelle mst
-3. Install eclipse
-4. Download jdbc driver http://jdbc.postgresql.org/download.html
-5. New java project -> project ->properties ->java Build Path ->libraries -> add External JARs... -> add JDBC Drivers in Project 
-6. New void main class JDBC_connect_Example
-7. Xem code from JDBC_connect_Example.java 
++ Ví dụ em có Postgres DB cài trong máy: => sẽ tạo ra DB trên localhost với default port 5432
++ Em có DB name là detektordaten_hessen restore từ backup file của em => sẽ có schema public + Tabelle mdp + Tabelle mst
+
+1. Install eclipse
+2. Download jdbc driver http://jdbc.postgresql.org/download.html
+3. New java project -> project ->properties ->java Build Path ->libraries -> add External JARs... -> add JDBC Drivers in Project 
+4. New void main class JDBC_connect_Example
+5. Xem code from JDBC_connect_Example.java 
 
 ___
 
@@ -21,7 +22,7 @@ WHERE
 	(flow_pkw > 0 AND speed_pkw < 40 ) 
 ORDER BY site asc, tsp asc 
 ``````
-> ví dụ em chỉ muốn query trên 1 vài máy đo thôi thi thêm vào SQL 1 điều kiện:<br> 
+> ví dụ em chỉ muốn query trên 2 máy đo 2000000 và 2000161 thôi thì thêm vào SQL điều kiện:<br> 
 > **AND site in (2000000,2000161)**
 
 ````SQL
