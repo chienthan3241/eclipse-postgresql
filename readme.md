@@ -9,9 +9,9 @@
 5. see code from JDBC_connect_Example.java <br>
 ------------------------------------------------------------------------------<br>
 
-///Tim van toc cua xe pkw va lkw < 40kmh////
-+ cai nay don gian la em se viet 1 cau SQL: <br>
-// vi du tim cho tat cac cac may do , toan bo time trong DB, trong do van toc cua LKW va PKW deu < 40kmh (sap xep theo ten may do tang dan, time tang dan):<br>
+///Tìm vận tốc của xe pkw và lkw < 40kmh////
++ cái này đơn giản là em sẽ viết 1 câu SQL: <br>
+// ví dụ tìm cho tất cả các máy đo , không giới hạn time, trong đó vận tốc của LKW và PKW đều < 40kmh (sắp xếp theo tên máy đo tăng dần, time tăng dần):<br>
 SELECT 
 	*
 FROM 
