@@ -42,6 +42,7 @@ ___
 
 ### Stoßwelle
 > SQL tính khoảng cách giữa 2 máy đo: ví dụ máy P2011443 và P2011449(http://postgis.refractions.net/docs/ST_Distance_Sphere.html)
+
 `````SQL
 SELECT
   ST_Distance_Sphere(
