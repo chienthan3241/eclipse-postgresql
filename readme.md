@@ -92,29 +92,5 @@ ORDER BY
 + dùng vòng lặp trên array cho từng máy đo, so sánh density tại mỗi thời điểm với thời điểm kế tiếp (cách nhau 1 phút), nếu > x thì ghi lại
 + kết quả có thể hiện ra trên 1 table trong java, ghi vào file, hoặc thể hiện trên đồ thị
 + Density Sprung có thể thay đổi và được xác định bởi User
-+ Code anh viết trong file [code/Density_Calc.java](https://github.com/chienthan3241/eclipse-postgresql/blob/master/code/Density_Calc.java) (chu y: de tranh java.lang.OutOfMemoryError thi phai tang Memory trong eclipse.ini len)
-````````````JAVA
--startup
-plugins/org.eclipse.equinox.launcher_1.3.0.v20140415-2008.jar
---launcher.library
-plugins/org.eclipse.equinox.launcher.win32.win32.x86_64_1.1.200.v20140603-1326
--product
-org.eclipse.epp.package.standard.product
---launcher.defaultAction
-openFile
---launcher.XXMaxPermSize
-2048M
--showsplash
-org.eclipse.platform
---launcher.XXMaxPermSize
-2048m
---launcher.defaultAction
-openFile
---launcher.appendVmargs
--vmargs
--Dosgi.requiredJavaVersion=1.7
--Xms1024m
--Xmx2048m
-
-````````````
++ Code anh viết trong file [code/Density_Calc.java](https://github.com/chienthan3241/eclipse-postgresql/blob/master/code/Density_Calc.java)
 + trong code này là 1 swing application có 2 tab; 1 tab để load dữ liệu từ DB, tính density tại từng điểm rồi ghi ra file json ; tab 2 để load file json ra tính Dichte Sprung , nếu Spung lớn thì sẽ hiện ra trên table
