@@ -527,28 +527,23 @@ public class Density_Calc extends JFrame {
 					c = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/detektordaten_hessen", "postgres", "Password2013");
 					stmt = c.createStatement();					
 					ResultSet rs = stmt.executeQuery(sql);										 
-					// write to JSON file
+					// write to CSV file
 					try
 					{
-						System.out.println("Begin write to json...");
-						//JSONArray list = new JSONArray();				
+						System.out.println("Begin write to csv...");									
 					    FileWriter writer = new FileWriter(textField.getText()+".csv");
-					    //writer.append("[");
+					    
 					    while ( rs.next() ) {
 				            String site 		= rs.getString("site");
 				            String tsp 			= rs.getString("tsp");
 				            String density_lkw 	= rs.getString("density_lkw");
-				            String density_pkw 	= rs.getString("density_pkw");
-				           // list.add(new Res_item(site,tsp,density_lkw,density_pkw));
-				           // writer.append("{");
-				            writer.append(site+";"+tsp+";"+density_lkw+";"+density_pkw);
-				           // writer.append("}");
+				            String density_pkw 	= rs.getString("density_pkw");				           
+				            writer.append(site+";"+tsp+";"+density_lkw+";"+density_pkw);				          
 				            if(!rs.isLast()){
 				            	writer.append("\n");
 				            }
 					    }
-					   // writer.append("]");
-					  //  writer.append(list.toJSONString());
+					   
 					    writer.flush();
 					    writer.close();
 					    System.out.println("done!");
@@ -587,7 +582,7 @@ public class Density_Calc extends JFrame {
 		JButton btnNewButton_1 = new JButton("Browser");
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				//open json file 
+				//open csv file 
 				fileChooser1.setFileFilter(filter);
 				 int rueckgabeWert = fileChooser1.showOpenDialog(null);
 				 if(rueckgabeWert == JFileChooser.APPROVE_OPTION)
