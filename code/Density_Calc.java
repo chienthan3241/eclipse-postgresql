@@ -735,7 +735,7 @@ class Res_item implements JSONAware{
          sb.append(":");
          sb.append("\"" +density_pkw + "\"");
          
-         sb.append("}");
+         sb.append("}\n");
          
          return sb.toString();
  }
