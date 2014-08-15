@@ -659,6 +659,10 @@ public class Density_Calc extends JFrame {
 									if(density_sprung_lkw>=(float)sprunglkw || density_sprung_pkw>=(float)sprungpkw){
 										dtm.addRow(new Object[] { site_i, tsp_i, density_lkw_i,density_pkw_i, Float.toString(density_sprung_lkw), Float.toString(density_sprung_pkw)});
 									}
+									site_i = site_j;
+									tsp_i = tsp_j;
+									density_lkw_i = density_lkw_j;
+									density_pkw_i = density_pkw_j;
 								}else{
 									count = -1;
 								}
