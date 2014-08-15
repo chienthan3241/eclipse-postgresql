@@ -5,10 +5,13 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
+//import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -29,11 +32,11 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONAware;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+//import org.json.simple.JSONArray;
+//import org.json.simple.JSONAware;
+//import org.json.simple.JSONObject;
+//import org.json.simple.parser.JSONParser;
+//import org.json.simple.parser.ParseException;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -66,7 +69,7 @@ public class Density_Calc extends JFrame {
 	private JTextField textField_2;
 	private JTable table;
 	private JFileChooser fileChooser1 = new JFileChooser();
-	private FileNameExtensionFilter filter = new FileNameExtensionFilter("JSON FILES", "json", "json");
+	private FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV FILES", "csv", "csv");
 	private JLabel lblLkw;
 	private JLabel lblPkw;
 	private JTextField textField_1;
@@ -519,6 +522,7 @@ public class Density_Calc extends JFrame {
 				*/
 				Connection c = null;
 			    Statement stmt = null;
+			    System.out.println(sql);
 			    try {
 					c = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/detektordaten_hessen", "postgres", "Password2013");
 					stmt = c.createStatement();					
@@ -527,16 +531,24 @@ public class Density_Calc extends JFrame {
 					try
 					{
 						System.out.println("Begin write to json...");
-						JSONArray list = new JSONArray();				
-					    FileWriter writer = new FileWriter(textField.getText()+".json");
+						//JSONArray list = new JSONArray();				
+					    FileWriter writer = new FileWriter(textField.getText()+".csv");
+					    //writer.append("[");
 					    while ( rs.next() ) {
 				            String site 		= rs.getString("site");
 				            String tsp 			= rs.getString("tsp");
 				            String density_lkw 	= rs.getString("density_lkw");
 				            String density_pkw 	= rs.getString("density_pkw");
-				            list.add(new Res_item(site,tsp,density_lkw,density_pkw));
-				         }		  
-					    writer.append(list.toJSONString());
+				           // list.add(new Res_item(site,tsp,density_lkw,density_pkw));
+				           // writer.append("{");
+				            writer.append(site+";"+tsp+";"+density_lkw+";"+density_pkw);
+				           // writer.append("}");
+				            if(!rs.isLast()){
+				            	writer.append("\n");
+				            }
+					    }
+					   // writer.append("]");
+					  //  writer.append(list.toJSONString());
 					    writer.flush();
 					    writer.close();
 					    System.out.println("done!");
@@ -603,64 +615,68 @@ public class Density_Calc extends JFrame {
 				if(filename.getText().equals("")){
 					JOptionPane.showConfirmDialog(null, "please choose json files", "validate", JOptionPane.CANCEL_OPTION);					
 					return;
-				}
+				}				
+				
 				try{
-					//readjson file, calculate and display on table
+					//read csv file, calculate and display on table
 					int sprunglkw = Integer.parseInt(textField_2.getText());
-					int sprungpkw = Integer.parseInt(textField_1.getText());
-					JSONParser parser = new JSONParser();
+					int sprungpkw = Integer.parseInt(textField_1.getText());					
+					
 					try {
+						String sCurrentLine;
+						FileInputStream fstream = new FileInputStream(filename.getText());
+						BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
+						String[] items = null;
+						int count = 0;						
+						String site_i = null;
+						String tsp_i = null;
+						String density_lkw_i = null;
+						String density_pkw_i = null;
+						String site_j;
+						String tsp_j;
+						String density_lkw_j;
+						String density_pkw_j;
+						float density_sprung_lkw;
+						float density_sprung_pkw;
 						DefaultTableModel dtm = new DefaultTableModel(0, 0);
 						//add header of the table
 						String header[] = new String[] { "site", "tsp", "density_lkw", "density_pkw", "density_Sprung_LKW", "density_Sprung_PKW" };
 						//add header in table model
 						dtm.setColumnIdentifiers(header);
 						table.setModel(dtm);
-						
-						//parse json
-						Object obj = parser.parse(new FileReader(filename.getText()));				 
-						JSONArray ar = (JSONArray) obj;
-						
-						// loop through array
-						String site_init = (String)((JSONObject) ar.get(0)).get("site");//initial site
-						String site_i;
-						String tsp_i;
-						String density_lkw_i;
-						String density_pkw_i;
-						float density_sprung_lkw;
-						float density_sprung_pkw;
-						int ar_size =  ar.size();
-						for(int i =0;i< ar_size;i++){
-							
-							if(i == ar_size-1){
-								continue;
-							}
-							site_i = (String)(((JSONObject) ar.get(i+1)).get("site"));
-							if(Integer.parseInt(site_i) == Integer.parseInt(site_init)){
-								tsp_i = (String)((JSONObject) ar.get(i)).get("tsp");
-								density_lkw_i = (String) ((JSONObject) ar.get(i)).get("density_lkw");
-								density_pkw_i = (String) ((JSONObject) ar.get(i)).get("density_pkw");
-								//calculate absolut value of density sprung to next point
-								density_sprung_lkw = Math.abs(Float.parseFloat((String) ((JSONObject) ar.get(i)).get("density_lkw"))-Float.parseFloat((String) ((JSONObject) ar.get(i+1)).get("density_lkw")));
-								density_sprung_pkw = Math.abs(Float.parseFloat((String) ((JSONObject) ar.get(i)).get("density_pkw"))-Float.parseFloat((String) ((JSONObject) ar.get(i+1)).get("density_pkw")));
-								
-								if(density_sprung_lkw>=(float)sprunglkw || density_sprung_pkw>=(float)sprungpkw){
-									// save in table
-									dtm.addRow(new Object[] { site_i, tsp_i, density_lkw_i,density_pkw_i, Float.toString(density_sprung_lkw), Float.toString(density_sprung_pkw)});
+						System.out.println("begin read file line by line");
+						while ((sCurrentLine = br.readLine()) != null) {
+							items = sCurrentLine.split(";");
+							if(count == 0){
+								site_i = items[0];
+								tsp_i = items[1];
+								density_lkw_i = items[2];
+								density_pkw_i = items[3];
+							}else{
+								site_j = items[0];
+								tsp_j = items[1];
+								density_lkw_j = items[2];
+								density_pkw_j = items[3];
+								if(Integer.parseInt(site_j) == Integer.parseInt(site_i)){
+									//calculate absolut value of density sprung to next point
+									density_sprung_lkw = Math.abs(Float.parseFloat(density_lkw_i) - Float.parseFloat(density_lkw_j));
+									density_sprung_pkw = Math.abs(Float.parseFloat(density_pkw_i) - Float.parseFloat(density_pkw_j));
+									if(density_sprung_lkw>=(float)sprunglkw || density_sprung_pkw>=(float)sprungpkw){
+										dtm.addRow(new Object[] { site_i, tsp_i, density_lkw_i,density_pkw_i, Float.toString(density_sprung_lkw), Float.toString(density_sprung_pkw)});
+									}
+								}else{
+									count = 0;
 								}
 							}
-							site_init = site_i;							
+							
+							count++;
 						}
-						//System.out.println(ar.size());
 						
-				 
 					} catch (FileNotFoundException ej) {
 						ej.printStackTrace();
 					} catch (IOException ej) {
 						ej.printStackTrace();
-					} catch (ParseException ej) {
-						ej.printStackTrace();
-					}
+					} 
 					
 				}catch(NumberFormatException el){
 					JOptionPane.showConfirmDialog(null, "Please enter numbers only for density Sprung", "validate", JOptionPane.CANCEL_OPTION);
@@ -693,52 +709,3 @@ public class Density_Calc extends JFrame {
 		textField_1.setColumns(10);
 	}
 }
-
-//use this class to write json file
-class Res_item implements JSONAware{
- private String site;
- private String tsp;
- private String density_lkw;
- private String density_pkw;
- 
- public Res_item(String site, String tsp, String density_lkw, String density_pkw){
-         this.site = site;
-         this.tsp = tsp;
-         this.density_lkw = density_lkw;
-         this.density_pkw = density_pkw;
- }
- 
- public String toJSONString(){
-         StringBuffer sb = new StringBuffer();
-         
-         sb.append("{");
-         
-         sb.append("\"" +JSONObject.escape("site") + "\"");
-         sb.append(":");
-         sb.append("\"" + JSONObject.escape(site) + "\"");
-         
-         sb.append(",");
-         
-         sb.append("\"" +JSONObject.escape("tsp") + "\"");
-         sb.append(":");
-         sb.append("\"" +tsp + "\"") ;
-         
-         sb.append(",");
-         
-         sb.append("\"" +JSONObject.escape("density_lkw") + "\"");
-         sb.append(":");
-         sb.append("\"" +density_lkw + "\"");
-         
-         sb.append(",");
-         
-         sb.append("\"" +JSONObject.escape("density_pkw") + "\"");
-         sb.append(":");
-         sb.append("\"" +density_pkw + "\"");
-         
-         sb.append("}\n");
-         
-         return sb.toString();
- }
-}
-
-

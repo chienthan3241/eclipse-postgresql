@@ -85,12 +85,12 @@ ORDER BY
   ELSE site END ASC, 
   tsp asc;
 ```````````````````````````````
-+SQL ra kết quả rồi em sẽ lưu vào file ở json format : ví dụ calc_tmp.json (để khi tính toán Density Sprung thì không phải abfragen trên DB nữa vì DB chạy rất lâu)
++SQL ra kết quả rồi em sẽ lưu vào file ở csv format : ví dụ calc_tmp.csv (để khi tính toán Density Sprung thì không phải abfragen trên DB nữa vì DB chạy rất lâu)
 > Tính những điểm với Density Sprung > x:
 
-+ vói file calc_tmp.json ở trên em sẽ load dữ liệu vào 1 array trong java 
-+ dùng vòng lặp trên array cho từng máy đo, so sánh density tại mỗi thời điểm với thời điểm kế tiếp (cách nhau 1 phút), nếu > x thì ghi lại
++ vói file calc_tmp.csv ở trên em sẽ load dữ liệu line by line 
++ dùng vòng lặp, so sánh density tại mỗi thời điểm với thời điểm kế tiếp (cách nhau 1 phút), nếu > x thì ghi lại
 + kết quả có thể hiện ra trên 1 table trong java, ghi vào file, hoặc thể hiện trên đồ thị
 + Density Sprung có thể thay đổi và được xác định bởi User
 + Code anh viết trong file [code/Density_Calc.java](https://github.com/chienthan3241/eclipse-postgresql/blob/master/code/Density_Calc.java)
-+ trong code này là 1 swing application có 2 tab; 1 tab để load dữ liệu từ DB, tính density tại từng điểm rồi ghi ra file json ; tab 2 để load file json ra tính Dichte Sprung , nếu Spung lớn thì sẽ hiện ra trên table
++ trong code này là 1 swing application có 2 tab; 1 tab để load dữ liệu từ DB, tính density tại từng điểm rồi ghi ra file csv ; tab 2 để load file csv ra tính Dichte Sprung , nếu Spung lớn thì sẽ hiện ra trên table
