@@ -660,7 +660,7 @@ public class Density_Calc extends JFrame {
 										dtm.addRow(new Object[] { site_i, tsp_i, density_lkw_i,density_pkw_i, Float.toString(density_sprung_lkw), Float.toString(density_sprung_pkw)});
 									}
 								}else{
-									count = 0;
+									count = -1;
 								}
 							}
 							
