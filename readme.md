@@ -52,7 +52,7 @@ SELECT
 `````
 > SQL tính density(/km) cho 18 máy đo trong Strecke chọn trước: sắp xếp theo vị trí của máy đo trên bản đồ, sắp xếp theo thời gian tăng giần, format của mật độ xe: 5 số cho phần nguyên, 2  số thập phân ví dụ: 12345.67
 
-```````````````````````````````SQL
+````````````````````````````````SQL
 SELECT 
 	site, 
 	tsp, 
@@ -61,7 +61,8 @@ SELECT
 	(case when speed_lkw=0 then 0 else flow_lkw*60/speed_lkw::float end)::numeric(7,2) as density_lkw, 
 	(case when speed_pkw=0 then 0 else flow_pkw*60/speed_pkw::float end)::numeric(7,2) as density_pkw
 FROM mdp 
-WHERE site in (2008002,2007853,2008259,2007956,2007865,2008265,2007871,2007938,2008313,2007932,2008307,2007889,2007920,2008301,2007895,2007914,2008295,2007902) 
+WHERE site in (2008002,2007853,2008259,2007956,2007865,2008265,2007871,2007938,2008313,2007932,2008307,2007889,2007920,2008301,2007895,2007914,2008295,2007902)
+AND concentration != -1
 ORDER BY 
   CASE 
   WHEN site = 2008002 THEN '1'
@@ -84,7 +85,7 @@ ORDER BY
   WHEN site = 2007902 THEN '18'
   ELSE site END ASC, 
   tsp asc;
-```````````````````````````````
+````````````````````````````````
 +SQL ra kết quả rồi em sẽ lưu vào file ở csv format : ví dụ calc_tmp.csv (để khi tính toán Density Sprung thì không phải abfragen trên DB nữa vì DB chạy rất lâu)
 > Tính những điểm với Density Sprung > x:
 
@@ -93,4 +94,4 @@ ORDER BY
 + kết quả có thể hiện ra trên 1 table trong java, ghi vào file, hoặc thể hiện trên đồ thị
 + Density Sprung có thể thay đổi và được xác định bởi User
 + Code anh viết trong file [code/Density_Calc.java](https://github.com/chienthan3241/eclipse-postgresql/blob/master/code/Density_Calc.java)
-+ trong code này là 1 swing application có 2 tab; 1 tab để load dữ liệu từ DB, tính density tại từng điểm rồi ghi ra file csv ; tab 2 để load file csv ra tính Dichte Sprung , nếu Spung lớn thì sẽ hiện ra trên table
++ trong code này là 1 swing application có 2 tab; 1 tab để load dữ liệu từ DB, tính density tại từng điểm rồi ghi ra file csv ; tab 2 để load file csv ra tính Dichte Sprung , nếu Spung lớn thì sẽ hiện ra trên table, hoac hien ra tren do thi
