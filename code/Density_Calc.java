@@ -46,13 +46,12 @@ import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
-import org.jfree.chart.urls.XYURLGenerator;
 import org.jfree.data.time.Second;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.XYDataset;
 
+@SuppressWarnings("serial")
 public class Density_Calc extends JFrame {
 
 	private JPanel contentPane;
@@ -487,8 +486,8 @@ public class Density_Calc extends JFrame {
 					
 					sql = " SELECT "
 							+ " site, tsp,  flow_lkw,  speed_lkw, flow_pkw, speed_pkw, "
-							+ "(case when speed_lkw=0 then 0 else flow_lkw*60/speed_lkw::float end)::numeric(7,2) as density_lkw,  "
-							+ "(case when speed_pkw=0 then 0 else flow_pkw*60/speed_pkw::float end)::numeric(7,2) as density_pkw "
+							+ "(case when speed_lkw=0 then 0 else flow_lkw/speed_lkw::float end)::numeric(7,2) as density_lkw,  "
+							+ "(case when speed_pkw=0 then 0 else flow_pkw/speed_pkw::float end)::numeric(7,2) as density_pkw "
 							+ "FROM mdp "
 							+ "WHERE " + sql_cond1 + " AND concentration != -1 "
 							+ "ORDER BY "
@@ -512,8 +511,8 @@ public class Density_Calc extends JFrame {
 					sql_cond2 = sql_cond2 + " ELSE site END ASC ";
 					sql = " SELECT "
 							+ " site, tsp,  flow_lkw,  speed_lkw, flow_pkw, speed_pkw, "
-							+ "(case when speed_lkw=0 then 0 else flow_lkw*60/speed_lkw::float end)::numeric(7,2) as density_lkw,  "
-							+ "(case when speed_pkw=0 then 0 else flow_pkw*60/speed_pkw::float end)::numeric(7,2) as density_pkw "
+							+ "(case when speed_lkw=0 then 0 else flow_lkw/speed_lkw::float end)::numeric(7,2) as density_lkw,  "
+							+ "(case when speed_pkw=0 then 0 else flow_pkw/speed_pkw::float end)::numeric(7,2) as density_pkw "
 							+ "FROM mdp "
 							+ "WHERE " + sql_cond1 + " AND concentration != -1 "
 							+ "ORDER BY "
@@ -582,7 +581,7 @@ public class Density_Calc extends JFrame {
 		tabbedPane.addTab("Density Sprung Calculator", null, panel_1, null);
 		panel_1.setLayout(null);
 		
-		lblNewLabel_1 = new JLabel("Choose json file:");
+		lblNewLabel_1 = new JLabel("Choose csv file:");
 		lblNewLabel_1.setBounds(20, 11, 95, 14);
 		panel_1.add(lblNewLabel_1);
 		
@@ -621,7 +620,7 @@ public class Density_Calc extends JFrame {
 		btnExecute.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(filename.getText().equals("")){
-					JOptionPane.showConfirmDialog(null, "please choose json files", "validate", JOptionPane.CANCEL_OPTION);					
+					JOptionPane.showConfirmDialog(null, "please choose csv files", "validate", JOptionPane.CANCEL_OPTION);					
 					return;
 				}				
 				
@@ -653,7 +652,7 @@ public class Density_Calc extends JFrame {
 						//add header in table model
 						dtm.setColumnIdentifiers(header);
 						table.setModel(dtm);
-						System.out.println("begin read file line by line");
+						System.out.println("begin read file line by line to write in to table");
 						while ((sCurrentLine = br.readLine()) != null) {
 							items = sCurrentLine.split(";");
 							if(count == 0){
@@ -685,6 +684,7 @@ public class Density_Calc extends JFrame {
 							
 							count++;
 						}
+						System.out.println("done!");
 						
 					} catch (FileNotFoundException ej) {
 						ej.printStackTrace();
@@ -727,7 +727,7 @@ public class Density_Calc extends JFrame {
 			@SuppressWarnings("deprecation")
 			public void actionPerformed(ActionEvent arg0) {
 				if(filename.getText().equals("")){
-					JOptionPane.showConfirmDialog(null, "please choose json files", "validate", JOptionPane.CANCEL_OPTION);					
+					JOptionPane.showConfirmDialog(null, "please choose csv files", "validate", JOptionPane.CANCEL_OPTION);					
 					return;
 				}
 				try{
@@ -742,8 +742,7 @@ public class Density_Calc extends JFrame {
 						@SuppressWarnings("resource")
 						BufferedReader br1 = new BufferedReader(new InputStreamReader(fstream));
 						String[] items = null;
-						int count = 0;
-						int step = 0;
+						int count = 0;						
 						String site_i = null;
 						String tsp_i = null;
 						String density_lkw_i = null;
@@ -770,6 +769,7 @@ public class Density_Calc extends JFrame {
 						PlotOrientation orientation = PlotOrientation.VERTICAL;
 						XYToolTipGenerator toolTipGenerator = new StandardXYToolTipGenerator();
 						//**//
+						System.out.println("begin read file line by line to draw chart");
 						while ((sCurrentLine = br1.readLine()) != null) {
 							
 							items = sCurrentLine.split(";");
@@ -799,15 +799,12 @@ public class Density_Calc extends JFrame {
 											e.printStackTrace();
 										}										
 									}
-									if(density_sprung_pkw>=(float)sprungpkw){
-										if(step == 1){
-										try {
-											//series1.add(new Second( format.parse(tsp_i).getSeconds(), format.parse(tsp_i).getMinutes(),format.parse(tsp_i).getHours(),format.parse(tsp_i).getDate(),format.parse(tsp_i).getMonth()+1,format.parse(tsp_i).getYear()+1900), density_sprung_pkw);
+									if(density_sprung_pkw>=(float)sprungpkw){										
+										try {											
 											series1.add(new Second( format.parse(tsp_i)), density_sprung_pkw);
 										} catch (ParseException e) {
 											e.printStackTrace();
-										}
-										}
+										}									
 									}
 									site_i = site_j;
 									tsp_i = tsp_j;
@@ -823,12 +820,12 @@ public class Density_Calc extends JFrame {
 							 		subplot = new XYPlot(result,null,rangeAxis, renderer);
 							 		plot.add(subplot);
 							 		//**//
-									count = -1;
-									step++;
+									count = -1;									
 								}
 							}							
 							count++;
 						}			
+						System.out.println("done!");
 							//add the last one
 							result.addSeries(series);
 							result.addSeries(series1);
