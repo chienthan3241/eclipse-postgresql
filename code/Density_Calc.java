@@ -128,7 +128,9 @@ public class Density_Calc extends JFrame {
 	private JButton btnClearAll;
 	private JDateChooser dateChooser;
 	private JDateChooser dateChooser_1;
-	
+	private JButton btnExecute;
+	private show_density_on_table_without_set_sprung task6;
+	private int line_nr;
 	/**
 	 * Launch the application.
 	 */
@@ -347,9 +349,24 @@ public class Density_Calc extends JFrame {
 		panel_5.add(textField);
 		textField.setColumns(10);
 		
-		btnNewButton = new JButton("Execute");
+		btnNewButton = new JButton("Execute");		
 		btnNewButton.setBounds(326, 440, 89, 23);
 		panel_5.add(btnNewButton);		
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {				
+				if(listModel_des.isEmpty()){
+					JOptionPane.showConfirmDialog(null, "Please push some Induktiv to calculate Density", "validate", JOptionPane.CANCEL_OPTION);
+					return;
+				}
+				if(textField.getText().equals("")){
+					JOptionPane.showConfirmDialog(null, "Please choose filename", "validate", JOptionPane.CANCEL_OPTION);
+					return;
+				}				
+				btnNewButton.setEnabled(false);
+				task5 = new export_density_Task();
+				task5.execute();
+			}
+		});
 		
 		lblSelectFahrstreifen = new JLabel("Select Fahrstreifen:");
 		lblSelectFahrstreifen.setBounds(10, 48, 124, 14);
@@ -418,25 +435,7 @@ public class Density_Calc extends JFrame {
 		comboBox_6.setModel(new DefaultComboBoxModel(new String[] {"00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59"}));
 		comboBox_6.setSelectedIndex(59);
 		comboBox_6.setBounds(370, 302, 45, 20);
-		panel_5.add(comboBox_6);
-		
-		
-		
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {				
-				if(listModel_des.isEmpty()){
-					JOptionPane.showConfirmDialog(null, "Please push some Induktiv to calculate Density", "validate", JOptionPane.CANCEL_OPTION);
-					return;
-				}
-				if(textField.getText().equals("")){
-					JOptionPane.showConfirmDialog(null, "Please choose filename", "validate", JOptionPane.CANCEL_OPTION);
-					return;
-				}				
-				btnNewButton.setEnabled(false);
-				task5 = new export_density_Task();
-				task5.execute();
-			}
-		});
+		panel_5.add(comboBox_6);			
 		
 		JPanel panel_6 = new JPanel();
 		panel_6.setBorder(BorderFactory.createTitledBorder("Loging"));
@@ -498,86 +497,16 @@ public class Density_Calc extends JFrame {
 		panel_1.add(textField_2);
 		textField_2.setColumns(10);
 		
-		JButton btnExecute = new JButton("Show Density on table without set Sprung");
+		btnExecute = new JButton("Show Density on table without set Sprung");
 		btnExecute.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(filename.getText().equals("")){
 					JOptionPane.showConfirmDialog(null, "please choose csv files", "validate", JOptionPane.CANCEL_OPTION);					
 					return;
 				}				
-				
-				try{
-					//read csv file, calculate and display on table
-					int sprunglkw = Integer.parseInt(textField_2.getText());
-					int sprungpkw = Integer.parseInt(textField_1.getText());					
-					
-					try {
-						String sCurrentLine;
-						FileInputStream fstream = new FileInputStream(filename.getText());
-						@SuppressWarnings("resource")
-						BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
-						String[] items = null;
-						int count = 0;						
-						String site_i = null;
-						String tsp_i = null;
-						String density_lkw_i = null;
-						String density_pkw_i = null;
-						String site_j;
-						String tsp_j;
-						String density_lkw_j;
-						String density_pkw_j;
-						float density_sprung_lkw;
-						float density_sprung_pkw;
-						DefaultTableModel dtm = new DefaultTableModel(0, 0);
-						//add header of the table
-						String header[] = new String[] { "site", "tsp", "density_lkw", "density_pkw", "density_Sprung_LKW", "density_Sprung_PKW" };
-						//add header in table model
-						dtm.setColumnIdentifiers(header);
-						table.setModel(dtm);
-						System.out.println("begin read file line by line to write in to table");
-						while ((sCurrentLine = br.readLine()) != null) {
-							items = sCurrentLine.split(";");
-							if(count == 0){
-								site_i = items[0];
-								tsp_i = items[1];
-								density_lkw_i = items[2];
-								density_pkw_i = items[3];
-							}else{
-								site_j = items[0];
-								tsp_j = items[1];
-								density_lkw_j = items[2];
-								density_pkw_j = items[3];
-								if(Integer.parseInt(site_j) == Integer.parseInt(site_i)){
-									//calculate absolut value of density sprung to next point
-									density_sprung_lkw = Math.abs(Float.parseFloat(density_lkw_i) - Float.parseFloat(density_lkw_j));
-									density_sprung_pkw = Math.abs(Float.parseFloat(density_pkw_i) - Float.parseFloat(density_pkw_j));
-									if(density_sprung_lkw>=(float)sprunglkw || density_sprung_pkw>=(float)sprungpkw){
-										dtm.addRow(new Object[] { site_i, tsp_i, density_lkw_i,density_pkw_i, Float.toString(density_sprung_lkw), Float.toString(density_sprung_pkw)});
-									}
-									site_i = site_j;
-									tsp_i = tsp_j;
-									density_lkw_i = density_lkw_j;
-									density_pkw_i = density_pkw_j;
-								}else{
-									count = -1;
-									
-								}
-							}
-							
-							count++;
-						}
-						System.out.println("done!");
-						
-					} catch (FileNotFoundException ej) {
-						ej.printStackTrace();
-					} catch (IOException ej) {
-						ej.printStackTrace();
-					} 
-					
-				}catch(NumberFormatException el){
-					JOptionPane.showConfirmDialog(null, "Please enter numbers only for density Sprung", "validate", JOptionPane.CANCEL_OPTION);
-				}
-				
+				btnExecute.setEnabled(false);
+				task6 = new show_density_on_table_without_set_sprung();
+				task6.execute();				
 			}
 		});
 		btnExecute.setBounds(361, 40, 275, 23);
@@ -797,6 +726,12 @@ public class Density_Calc extends JFrame {
 		progressBar.setIndeterminate(false);
 		progressBar.setValue(0);
 		progressBar.setForeground(new Color(163,184,204));
+	}
+	// function to reset progressBar_1 status
+	public void reset_progress1(){
+		progressBar_1.setIndeterminate(false);
+		progressBar_1.setValue(0);
+		progressBar_1.setForeground(new Color(163,184,204));
 	}
 	// to create multi task show on progressbar
 	// Task import InduktivSchleife from mst
@@ -1113,5 +1048,182 @@ public class Density_Calc extends JFrame {
 		}
 	}
 	// Task to show all density from file to table (without set Sprung)
-	
+	class show_density_on_table_without_set_sprung extends SwingWorker<Void, Void>{
+		@Override
+		public Void doInBackground() {
+			reset_progress1();			
+			// how many rows in file
+			line_nr = 0;
+			try {
+				FileInputStream fstream_init = new FileInputStream(filename.getText());
+				@SuppressWarnings("resource")
+				BufferedReader br_init = new BufferedReader(new InputStreamReader(fstream_init));				
+				String tmp;
+				while((tmp = br_init.readLine()) != null){
+					line_nr++;
+				}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				error = true;
+				btnExecute.setEnabled(true);				
+			} catch (IOException e) {
+				e.printStackTrace();
+				error = true;
+				btnExecute.setEnabled(true);
+			}
+			progressBar_1.setMinimum(0);
+			progressBar_1.setMaximum(line_nr);
+			// calculate density and write to table
+			try{
+				String sCurrentLine;
+				FileInputStream fstream = new FileInputStream(filename.getText());
+				@SuppressWarnings("resource")
+				BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
+				String header[] = new String[] { "site", "tsp", "density_lkw", "density_pkw", "density_Sprung_LKW", "density_Sprung_PKW" };
+				DefaultTableModel dtm = new DefaultTableModel(0, 0);
+				dtm.setColumnIdentifiers(header);
+				table.setModel(dtm);
+				String[] items = null;
+				int count = 0;
+				int progress_status = 0;
+				String site_i = null;
+				String tsp_i = null;
+				String density_lkw_i = null;
+				String density_pkw_i = null;
+				String site_j;
+				String tsp_j;
+				String density_lkw_j;
+				String density_pkw_j;
+				float density_sprung_lkw;
+				float density_sprung_pkw;
+				System.out.println("begin read file line by line to write in to table");
+				while ((sCurrentLine = br.readLine()) != null) {
+					items = sCurrentLine.split(";");
+					if(count == 0){
+						site_i = items[0];
+						tsp_i = items[1];
+						density_lkw_i = items[2];
+						density_pkw_i = items[3];
+						dtm.addRow(new Object[] { site_i, tsp_i, density_lkw_i,density_pkw_i, "-", "-"});
+						progressBar_1.setValue(progress_status);
+					}else{
+						site_j = items[0];
+						tsp_j = items[1];
+						density_lkw_j = items[2];
+						density_pkw_j = items[3];
+						if(Integer.parseInt(site_j) == Integer.parseInt(site_i)){
+							//calculate absolut value of density sprung to next point
+							density_sprung_lkw = Math.abs(Float.parseFloat(density_lkw_i) - Float.parseFloat(density_lkw_j));
+							density_sprung_pkw = Math.abs(Float.parseFloat(density_pkw_i) - Float.parseFloat(density_pkw_j));
+							dtm.addRow(new Object[] { site_j, tsp_j, density_lkw_j,density_pkw_j, Float.toString(density_sprung_lkw), Float.toString(density_sprung_pkw)});							
+							site_i = site_j;
+							tsp_i = tsp_j;
+							density_lkw_i = density_lkw_j;
+							density_pkw_i = density_pkw_j;
+						}else{
+							count = -1;	
+							
+						}
+						progressBar_1.setValue(progress_status);
+					}					
+					count++;
+					progress_status++;
+				}
+				System.out.println("done!");
+				error = false;
+			} catch (FileNotFoundException ej) {
+				ej.printStackTrace();
+				error = true;
+				btnExecute.setEnabled(true);
+			} catch (IOException ej) {
+				ej.printStackTrace();
+				error = true;
+				btnExecute.setEnabled(true);
+			} 
+			return null;
+		}
+		@Override
+		public void done(){
+			if(error){				
+				progressBar_1.setForeground(Color.red);					
+				btnExecute.setEnabled(true);
+			}else{
+				progressBar_1.setValue(line_nr);
+				btnExecute.setEnabled(true);
+			}
+		}
+		/*
+		 try{
+					//read csv file, calculate and display on table
+					int sprunglkw = Integer.parseInt(textField_2.getText());
+					int sprungpkw = Integer.parseInt(textField_1.getText());					
+					
+					try {
+						String sCurrentLine;
+						FileInputStream fstream = new FileInputStream(filename.getText());
+						@SuppressWarnings("resource")
+						BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
+						String[] items = null;
+						int count = 0;						
+						String site_i = null;
+						String tsp_i = null;
+						String density_lkw_i = null;
+						String density_pkw_i = null;
+						String site_j;
+						String tsp_j;
+						String density_lkw_j;
+						String density_pkw_j;
+						float density_sprung_lkw;
+						float density_sprung_pkw;
+						DefaultTableModel dtm = new DefaultTableModel(0, 0);
+						//add header of the table
+						String header[] = new String[] { "site", "tsp", "density_lkw", "density_pkw", "density_Sprung_LKW", "density_Sprung_PKW" };
+						//add header in table model
+						dtm.setColumnIdentifiers(header);
+						table.setModel(dtm);
+						System.out.println("begin read file line by line to write in to table");
+						while ((sCurrentLine = br.readLine()) != null) {
+							items = sCurrentLine.split(";");
+							if(count == 0){
+								site_i = items[0];
+								tsp_i = items[1];
+								density_lkw_i = items[2];
+								density_pkw_i = items[3];
+							}else{
+								site_j = items[0];
+								tsp_j = items[1];
+								density_lkw_j = items[2];
+								density_pkw_j = items[3];
+								if(Integer.parseInt(site_j) == Integer.parseInt(site_i)){
+									//calculate absolut value of density sprung to next point
+									density_sprung_lkw = Math.abs(Float.parseFloat(density_lkw_i) - Float.parseFloat(density_lkw_j));
+									density_sprung_pkw = Math.abs(Float.parseFloat(density_pkw_i) - Float.parseFloat(density_pkw_j));
+									if(density_sprung_lkw>=(float)sprunglkw || density_sprung_pkw>=(float)sprungpkw){
+										dtm.addRow(new Object[] { site_i, tsp_i, density_lkw_i,density_pkw_i, Float.toString(density_sprung_lkw), Float.toString(density_sprung_pkw)});
+									}
+									site_i = site_j;
+									tsp_i = tsp_j;
+									density_lkw_i = density_lkw_j;
+									density_pkw_i = density_pkw_j;
+								}else{
+									count = -1;
+									
+								}
+							}
+							
+							count++;
+						}
+						System.out.println("done!");
+						
+					} catch (FileNotFoundException ej) {
+						ej.printStackTrace();
+					} catch (IOException ej) {
+						ej.printStackTrace();
+					} 
+					
+				}catch(NumberFormatException el){
+					JOptionPane.showConfirmDialog(null, "Please enter numbers only for density Sprung", "validate", JOptionPane.CANCEL_OPTION);
+				}
+		 */
+	}
 }
