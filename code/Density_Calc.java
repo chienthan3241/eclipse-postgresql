@@ -1,6 +1,6 @@
 package density_pkg;
 
-import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
@@ -19,22 +19,26 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
-import javax.swing.AbstractButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JTabbedPane;
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingWorker;
 
 import org.jfree.chart.ChartFrame;
 import org.jfree.chart.JFreeChart;
@@ -51,41 +55,79 @@ import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.XYDataset;
 
+import javax.swing.JProgressBar;
+import javax.swing.JList;
+import javax.swing.JEditorPane;
+
+import jsyntaxpane.DefaultSyntaxKit;
+
+import javax.swing.JComboBox;
+import javax.swing.DefaultComboBoxModel;
+
+import com.toedter.calendar.JDateChooser;
+
+
+
 @SuppressWarnings("serial")
 public class Density_Calc extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField textField;
-	private JCheckBox chckbxNewCheckBox;
-	private JCheckBox chckbxNewCheckBox_1;
-	private JCheckBox chckbxNewCheckBox_2;
-	private JCheckBox chckbxNewCheckBox_3;
-	private JCheckBox chckbxNewCheckBox_4;
-	private JCheckBox chckbxNewCheckBox_5;
-	private JCheckBox chckbxNewCheckBox_6;
-	private JCheckBox chckbxNewCheckBox_7;
-	private JCheckBox chckbxNewCheckBox_8;
-	private JCheckBox chckbxNewCheckBox_9;
-	private JCheckBox chckbxNewCheckBox_10;
-	private JCheckBox chckbxNewCheckBox_11;
-	private JCheckBox chckbxNewCheckBox_12;
-	private JCheckBox chckbxNewCheckBox_13;
-	private JCheckBox chckbxNewCheckBox_14;
-	private JCheckBox chckbxNewCheckBox_15;
-	private JCheckBox chckbxNewCheckBox_16;
-	private JCheckBox chckbxNewCheckBox_17;
-	private JCheckBox chckbxNewCheckBox_18;
 	private JLabel lblNewLabel_1;
 	private JTextField filename;
 	private JTextField textField_2;
 	private JTable table;
 	private JFileChooser fileChooser1 = new JFileChooser();
+	private JFileChooser fileChooser2 = new JFileChooser();
 	private FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV FILES", "csv", "csv");
 	private JLabel lblLkw;
 	private JLabel lblPkw;
 	private JTextField textField_1;
 	private JButton btnNewButton_2;
-	
+	private JButton btnExport;
+	private JTextField textField_3;
+	@SuppressWarnings("rawtypes")
+	private JList list1;
+	@SuppressWarnings("rawtypes")
+	private JList list2;
+	private JEditorPane editorPane;
+	@SuppressWarnings("rawtypes")
+	private DefaultListModel listModel_source = new DefaultListModel();
+	@SuppressWarnings("rawtypes")
+	private DefaultListModel listModel_des = new DefaultListModel();
+	@SuppressWarnings("rawtypes")
+	private DefaultListModel listModel_reset = new DefaultListModel();
+	private JProgressBar progressBar;
+	private String sql;
+	private JScrollPane scrollPane_1;
+	private Boolean error;
+	private JButton btnNewButton_4;
+	private import_from_mst_Task task1;
+	private JButton btnLoadFromMdp;
+	private import_from_mdp_Task task2;
+	private export_induktiv_Task task3;
+	private JButton button;
+	private JButton button_1;
+	private JButton btnNewButton_3;
+	private import_from_file_Task task4;
+	private export_density_Task task5;
+	private JButton btnNewButton;
+	private JProgressBar progressBar_1;
+	private JLabel lblSelectFahrstreifen;
+	private JLabel lblNewLabel_2;
+	private JLabel lblDateTo;
+	private JLabel lblHhmmss;
+	private JComboBox comboBox;
+	private JComboBox comboBox_1;
+	private JComboBox comboBox_2;
+	private JComboBox comboBox_3;
+	private JLabel lblHhmmss_1;
+	private JComboBox comboBox_4;
+	private JComboBox comboBox_5;
+	private JComboBox comboBox_6;
+	private JButton btnClearAll;
+	private JDateChooser dateChooser;
+	private JDateChooser dateChooser_1;
 	
 	/**
 	 * Launch the application.
@@ -95,10 +137,10 @@ public class Density_Calc extends JFrame {
 			public void run() {
 				try {
 					Density_Calc frame = new Density_Calc();					
-					frame.setVisible(true);
+					frame.setVisible(true);					
 				} catch (Exception e) {
 					e.printStackTrace();
-				}
+				}				
 			}
 		});
 	}
@@ -106,475 +148,315 @@ public class Density_Calc extends JFrame {
 	/**
 	 * Create the frame.
 	 */
+	@SuppressWarnings("rawtypes")
 	public Density_Calc() {
 		setTitle("Density Calc");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1600, 600);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
+		contentPane.setLayout(null);
 		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		contentPane.add(tabbedPane, BorderLayout.NORTH);
+		tabbedPane.setBounds(5, 5, 1574, 524);
+		contentPane.add(tabbedPane);
 		
 		//tab panel1 to load density from DB
 		JPanel panel = new JPanel();
 		tabbedPane.addTab("Load density from DB", null, panel, null);
-		panel.setLayout(null);
 		panel.setPreferredSize(new Dimension(100, 480));
+		panel.setLayout(null);
 		
-		chckbxNewCheckBox = new JCheckBox("Check all");
-		chckbxNewCheckBox.setSelected(true);
-		//Add action listener
-		chckbxNewCheckBox.addActionListener(new ActionListener() {
-		      public void actionPerformed(ActionEvent actionEvent) {
-			        AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
-			        boolean selected = abstractButton.getModel().isSelected();	
-			        if(selected){
-			        	chckbxNewCheckBox_1.setSelected(true);
-			        	chckbxNewCheckBox_2.setSelected(true);
-			        	chckbxNewCheckBox_3.setSelected(true);
-			        	chckbxNewCheckBox_4.setSelected(true);
-			        	chckbxNewCheckBox_5.setSelected(true);
-			        	chckbxNewCheckBox_6.setSelected(true);
-			        	chckbxNewCheckBox_7.setSelected(true);
-			        	chckbxNewCheckBox_8.setSelected(true);
-			        	chckbxNewCheckBox_9.setSelected(true);
-			        	chckbxNewCheckBox_10.setSelected(true);
-			        	chckbxNewCheckBox_11.setSelected(true);
-			        	chckbxNewCheckBox_12.setSelected(true);
-			        	chckbxNewCheckBox_13.setSelected(true);
-			        	chckbxNewCheckBox_14.setSelected(true);
-			        	chckbxNewCheckBox_15.setSelected(true);
-			        	chckbxNewCheckBox_16.setSelected(true);
-			        	chckbxNewCheckBox_17.setSelected(true);
-			        	chckbxNewCheckBox_18.setSelected(true);
-			        	
-			        }else{
-			        	chckbxNewCheckBox_1.setSelected(false);
-			        	chckbxNewCheckBox_2.setSelected(false);
-			        	chckbxNewCheckBox_3.setSelected(false);
-			        	chckbxNewCheckBox_4.setSelected(false);
-			        	chckbxNewCheckBox_5.setSelected(false);
-			        	chckbxNewCheckBox_6.setSelected(false);
-			        	chckbxNewCheckBox_7.setSelected(false);
-			        	chckbxNewCheckBox_8.setSelected(false);
-			        	chckbxNewCheckBox_9.setSelected(false);
-			        	chckbxNewCheckBox_10.setSelected(false);
-			        	chckbxNewCheckBox_11.setSelected(false);
-			        	chckbxNewCheckBox_12.setSelected(false);
-			        	chckbxNewCheckBox_13.setSelected(false);
-			        	chckbxNewCheckBox_14.setSelected(false);
-			        	chckbxNewCheckBox_15.setSelected(false);
-			        	chckbxNewCheckBox_16.setSelected(false);
-			        	chckbxNewCheckBox_17.setSelected(false);
-			        	chckbxNewCheckBox_18.setSelected(false);
+		JPanel panel_2 = new JPanel();
+		panel_2.setBorder(BorderFactory.createTitledBorder("Source Induktiv-Schleife"));
+		panel_2.setBounds(10, 11, 272, 374);
+		panel.add(panel_2);
+		panel_2.setLayout(null);
+		
+		scrollPane_1 = new JScrollPane();
+		scrollPane_1.setBounds(10, 23, 252, 276);
+		panel_2.add(scrollPane_1);		
+				
+		list1 = new JList();		
+		scrollPane_1.setViewportView(list1);
+		
+		btnNewButton_3 = new JButton("Load from file");
+		btnNewButton_3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				btnNewButton_3.setEnabled(false);
+				//open csv file 
+				fileChooser2.setFileFilter(filter);
+				 int rueckgabeWert = fileChooser2.showOpenDialog(null);
+				 if(rueckgabeWert == JFileChooser.APPROVE_OPTION)
+			        {
+			         task4 = new import_from_file_Task();
+			         task4.execute();
 			        }
-			   }
-			});
-		chckbxNewCheckBox.setBounds(30, 25, 97, 23);
-		panel.add(chckbxNewCheckBox);
-		
-		chckbxNewCheckBox_1 = new JCheckBox("R2008002");
-		chckbxNewCheckBox_1.setSelected(true);
-		//Add action listener
-		chckbxNewCheckBox_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent actionEvent) {
-				AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
-				boolean selected = abstractButton.getModel().isSelected();	
-				if(!selected){
-					chckbxNewCheckBox.setSelected(false);
-				}
+				 else
+				 {
+					 btnNewButton_3.setEnabled(true);
+				 }
 			}
 		});
-		chckbxNewCheckBox_1.setBounds(30, 63, 97, 23);
-		panel.add(chckbxNewCheckBox_1);
+		btnNewButton_3.setBounds(150, 338, 112, 23);
+		panel_2.add(btnNewButton_3);
 		
-		chckbxNewCheckBox_2 = new JCheckBox("R2007853");
-		chckbxNewCheckBox_2.setSelected(true);
-		//Add action listener
-				chckbxNewCheckBox_2.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent actionEvent) {
-						AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
-						boolean selected = abstractButton.getModel().isSelected();	
-						if(!selected){
-							chckbxNewCheckBox.setSelected(false);
-						}
-					}
-				});
-		chckbxNewCheckBox_2.setBounds(163, 63, 97, 23);
-		panel.add(chckbxNewCheckBox_2);
-		
-		chckbxNewCheckBox_3 = new JCheckBox("R2008259");
-		chckbxNewCheckBox_3.setSelected(true);
-		//Add action listener
-				chckbxNewCheckBox_3.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent actionEvent) {
-						AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
-						boolean selected = abstractButton.getModel().isSelected();	
-						if(!selected){
-							chckbxNewCheckBox.setSelected(false);
-						}
-					}
-				});
-		chckbxNewCheckBox_3.setBounds(308, 63, 97, 23);
-		panel.add(chckbxNewCheckBox_3);
-		
-		chckbxNewCheckBox_4 = new JCheckBox("R2007956");
-		chckbxNewCheckBox_4.setSelected(true);
-		//Add action listener
-				chckbxNewCheckBox_4.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent actionEvent) {
-						AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
-						boolean selected = abstractButton.getModel().isSelected();	
-						if(!selected){
-							chckbxNewCheckBox.setSelected(false);
-						}
-					}
-				});
-		chckbxNewCheckBox_4.setBounds(461, 63, 97, 23);
-		panel.add(chckbxNewCheckBox_4);
-		
-		chckbxNewCheckBox_5 = new JCheckBox("R2007865");
-		chckbxNewCheckBox_5.setSelected(true);
-		//Add action listener
-				chckbxNewCheckBox_5.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent actionEvent) {
-						AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
-						boolean selected = abstractButton.getModel().isSelected();	
-						if(!selected){
-							chckbxNewCheckBox.setSelected(false);
-						}
-					}
-				});
-		chckbxNewCheckBox_5.setBounds(629, 63, 97, 23);
-		panel.add(chckbxNewCheckBox_5);
-		
-		chckbxNewCheckBox_6 = new JCheckBox("R2008265");
-		chckbxNewCheckBox_6.setSelected(true);
-		//Add action listener
-				chckbxNewCheckBox_6.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent actionEvent) {
-						AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
-						boolean selected = abstractButton.getModel().isSelected();	
-						if(!selected){
-							chckbxNewCheckBox.setSelected(false);
-						}
-					}
-				});
-		chckbxNewCheckBox_6.setBounds(781, 63, 97, 23);
-		panel.add(chckbxNewCheckBox_6);
-		
-		chckbxNewCheckBox_7 = new JCheckBox("R2007871");
-		chckbxNewCheckBox_7.setSelected(true);
-		//Add action listener
-				chckbxNewCheckBox_7.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent actionEvent) {
-						AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
-						boolean selected = abstractButton.getModel().isSelected();	
-						if(!selected){
-							chckbxNewCheckBox.setSelected(false);
-						}
-					}
-				});
-		chckbxNewCheckBox_7.setBounds(952, 63, 97, 23);
-		panel.add(chckbxNewCheckBox_7);
-		
-		chckbxNewCheckBox_8 = new JCheckBox("R2007938");
-		chckbxNewCheckBox_8.setSelected(true);
-		//Add action listener
-				chckbxNewCheckBox_1.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent actionEvent) {
-						AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
-						boolean selected = abstractButton.getModel().isSelected();	
-						if(!selected){
-							chckbxNewCheckBox.setSelected(false);
-						}
-					}
-				});
-		chckbxNewCheckBox_8.setBounds(1141, 63, 97, 23);
-		panel.add(chckbxNewCheckBox_8);
-		
-		chckbxNewCheckBox_9 = new JCheckBox("R2008313");
-		chckbxNewCheckBox_9.setSelected(true);
-		//Add action listener
-				chckbxNewCheckBox_9.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent actionEvent) {
-						AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
-						boolean selected = abstractButton.getModel().isSelected();	
-						if(!selected){
-							chckbxNewCheckBox.setSelected(false);
-						}
-					}
-				});
-		chckbxNewCheckBox_9.setBounds(1333, 63, 97, 23);
-		panel.add(chckbxNewCheckBox_9);
-		
-		chckbxNewCheckBox_10 = new JCheckBox("R2007932");
-		chckbxNewCheckBox_10.setSelected(true);
-		//Add action listener
-				chckbxNewCheckBox_10.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent actionEvent) {
-						AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
-						boolean selected = abstractButton.getModel().isSelected();	
-						if(!selected){
-							chckbxNewCheckBox.setSelected(false);
-						}
-					}
-				});
-		chckbxNewCheckBox_10.setBounds(30, 105, 97, 23);
-		panel.add(chckbxNewCheckBox_10);
-		
-		chckbxNewCheckBox_11 = new JCheckBox("R2008307");
-		chckbxNewCheckBox_11.setSelected(true);
-		//Add action listener
-		chckbxNewCheckBox_11.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent actionEvent) {
-				AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
-				boolean selected = abstractButton.getModel().isSelected();	
-				if(!selected){
-					chckbxNewCheckBox.setSelected(false);
-				}
+		btnNewButton_4 = new JButton("Load from mst");
+		btnNewButton_4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				btnNewButton_4.setEnabled(false);
+				task1 = new import_from_mst_Task();
+				task1.execute();
 			}
 		});
-		chckbxNewCheckBox_11.setBounds(163, 105, 97, 23);
-		panel.add(chckbxNewCheckBox_11);
+		btnNewButton_4.setBounds(10, 308, 130, 23);
+		panel_2.add(btnNewButton_4);
 		
-		chckbxNewCheckBox_12 = new JCheckBox("R2007889");
-		chckbxNewCheckBox_12.setSelected(true);
-		//Add action listener
-		chckbxNewCheckBox_12.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent actionEvent) {
-				AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
-				boolean selected = abstractButton.getModel().isSelected();	
-				if(!selected){
-					chckbxNewCheckBox.setSelected(false);
-				}
+		btnLoadFromMdp = new JButton("Load from mdp");
+		btnLoadFromMdp.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				btnLoadFromMdp.setEnabled(false);
+				task2 = new import_from_mdp_Task();
+				task2.execute();
 			}
 		});
-		chckbxNewCheckBox_12.setBounds(308, 105, 97, 23);
-		panel.add(chckbxNewCheckBox_12);
+		btnLoadFromMdp.setBounds(10, 338, 130, 23);
+		panel_2.add(btnLoadFromMdp);
 		
-		chckbxNewCheckBox_13 = new JCheckBox("R2007920");
-		chckbxNewCheckBox_13.setSelected(true);
-		//Add action listener
-		chckbxNewCheckBox_13.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent actionEvent) {
-				AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
-				boolean selected = abstractButton.getModel().isSelected();	
-				if(!selected){
-					chckbxNewCheckBox.setSelected(false);
+		JPanel panel_3 = new JPanel();
+		panel_3.setBorder(BorderFactory.createTitledBorder("Export all Induktiv-Schleife to file"));
+		panel_3.setBounds(10, 390, 272, 95);
+		panel.add(panel_3);
+		panel_3.setLayout(null);
+		
+		textField_3 = new JTextField();
+		textField_3.setBounds(95, 27, 167, 20);
+		panel_3.add(textField_3);
+		textField_3.setColumns(10);
+		
+		JLabel lblFilename = new JLabel("Filename:");
+		lblFilename.setBounds(20, 30, 65, 14);
+		panel_3.add(lblFilename);
+		
+		btnExport = new JButton("Export");
+		btnExport.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(textField_3.getText().equals("")){
+					JOptionPane.showConfirmDialog(null, "Please choose filename", "validate", JOptionPane.CANCEL_OPTION);
+					return;
 				}
+				btnExport.setEnabled(false);
+				task3 = new export_induktiv_Task();
+				task3.execute();
 			}
 		});
-		chckbxNewCheckBox_13.setBounds(461, 105, 97, 23);
-		panel.add(chckbxNewCheckBox_13);
+		btnExport.setBounds(173, 61, 89, 23);
+		panel_3.add(btnExport);
 		
-		chckbxNewCheckBox_14 = new JCheckBox("R2008301");
-		chckbxNewCheckBox_14.setSelected(true);
-		//Add action listener
-		chckbxNewCheckBox_14.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent actionEvent) {
-				AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
-				boolean selected = abstractButton.getModel().isSelected();	
-				if(!selected){
-					chckbxNewCheckBox.setSelected(false);
+		button = new JButton(">>");
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {				
+				Object source_selected_value [] = list1.getSelectedValues();
+				if (source_selected_value.length == 0){
+					JOptionPane.showConfirmDialog(null, "no source Induktiv selected", "validate", JOptionPane.CANCEL_OPTION);
+					return;
+				}else{				
+				for (int i = 0; i < source_selected_value.length; i++) {
+					   append_txt(editorPane, "push item: "+source_selected_value[i]);					   
+					   listModel_des.addElement(source_selected_value[i]);
+					   listModel_source.removeElementAt(get_index_of(listModel_source, source_selected_value[i]));
+					}
+					list1.setModel(listModel_source);
+					list2.setModel(listModel_des);
 				}
+				append_txt(editorPane, "-----------------------------------------------");
 			}
 		});
-		chckbxNewCheckBox_14.setBounds(629, 105, 97, 23);
-		panel.add(chckbxNewCheckBox_14);
+		button.setBounds(292, 99, 49, 23);
+		panel.add(button);
 		
-		chckbxNewCheckBox_15 = new JCheckBox("R2007895");
-		chckbxNewCheckBox_15.setSelected(true);
-		//Add action listener
-		chckbxNewCheckBox_15.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent actionEvent) {
-				AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
-				boolean selected = abstractButton.getModel().isSelected();	
-				if(!selected){
-					chckbxNewCheckBox.setSelected(false);
+		button_1 = new JButton("<<");
+		button_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {				
+				Object source_selected_value [] = list2.getSelectedValues();
+				if (source_selected_value.length == 0){
+					JOptionPane.showConfirmDialog(null, "no destination Induktiv selected", "validate", JOptionPane.CANCEL_OPTION);
+					return;
+				}else{				
+				for (int i = 0; i < source_selected_value.length; i++) {
+					   append_txt(editorPane, "pop item: "+source_selected_value[i]);
+					   int l_index = 0;
+					   while(Integer.parseInt(listModel_source.getElementAt(l_index).toString()) < Integer.parseInt(source_selected_value[i].toString())){
+						   l_index++;
+					   }
+					   listModel_source.add(l_index, source_selected_value[i]);
+					   listModel_des.removeElementAt(get_index_of(listModel_des, source_selected_value[i]));
+					}
+					list1.setModel(listModel_source);
+					list2.setModel(listModel_des);
 				}
+				append_txt(editorPane, "-----------------------------------------------");
 			}
 		});
-		chckbxNewCheckBox_15.setBounds(781, 105, 97, 23);
-		panel.add(chckbxNewCheckBox_15);
+		button_1.setBounds(292, 133, 49, 23);
+		panel.add(button_1);
 		
-		chckbxNewCheckBox_16 = new JCheckBox("R2007914");
-		chckbxNewCheckBox_16.setSelected(true);
-		//Add action listener
-		chckbxNewCheckBox_16.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent actionEvent) {
-				AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
-				boolean selected = abstractButton.getModel().isSelected();	
-				if(!selected){
-					chckbxNewCheckBox.setSelected(false);
+		JPanel panel_4 = new JPanel();
+		panel_4.setBorder(BorderFactory.createTitledBorder("Destination Induktiv-Schleife"));
+		panel_4.setBounds(351, 11, 311, 474);
+		panel.add(panel_4);
+		panel_4.setLayout(null);
+		
+		JScrollPane scrollPane_2 = new JScrollPane();
+		scrollPane_2.setBounds(10, 26, 290, 406);
+		panel_4.add(scrollPane_2);
+		
+		list2 = new JList();
+		scrollPane_2.setViewportView(list2);
+		
+		btnClearAll = new JButton("Clear all");
+		btnClearAll.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				listModel_des = new DefaultListModel();
+				listModel_source = new DefaultListModel();
+				for(int i = 0; i< listModel_reset.getSize();i++){
+					listModel_source.addElement(listModel_reset.getElementAt(i));
 				}
+				list1.setModel(listModel_source);
+				list2.setModel(listModel_des);
+				append_txt(editorPane, "/*clear all Induktiv Schleife*/");
+				append_txt(editorPane, "-----------------------------------------------");
 			}
 		});
-		chckbxNewCheckBox_16.setBounds(952, 105, 97, 23);
-		panel.add(chckbxNewCheckBox_16);
+		btnClearAll.setBounds(211, 440, 89, 23);
+		panel_4.add(btnClearAll);
 		
-		chckbxNewCheckBox_17 = new JCheckBox("R2008295");
-		chckbxNewCheckBox_17.setSelected(true);
-		//Add action listener
-		chckbxNewCheckBox_17.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent actionEvent) {
-				AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
-				boolean selected = abstractButton.getModel().isSelected();	
-				if(!selected){
-					chckbxNewCheckBox.setSelected(false);
-				}
-			}
-		});
-		chckbxNewCheckBox_17.setBounds(1141, 105, 97, 23);
-		panel.add(chckbxNewCheckBox_17);
-		
-		chckbxNewCheckBox_18 = new JCheckBox("R2007902");
-		chckbxNewCheckBox_18.setSelected(true);
-		//Add action listener
-		chckbxNewCheckBox_18.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent actionEvent) {
-				AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
-				boolean selected = abstractButton.getModel().isSelected();	
-				if(!selected){
-					chckbxNewCheckBox.setSelected(false);
-				}
-			}
-		});
-		chckbxNewCheckBox_18.setBounds(1333, 105, 97, 23);
-		panel.add(chckbxNewCheckBox_18);
+		JPanel panel_5 = new JPanel();
+		panel_5.setBorder(BorderFactory.createTitledBorder("Export Density to file"));
+		panel_5.setBounds(672, 11, 425, 474);
+		panel.add(panel_5);
+		panel_5.setLayout(null);
 		
 		JLabel lblNewLabel = new JLabel("Filename:");
-		lblNewLabel.setBounds(30, 170, 68, 14);
-		panel.add(lblNewLabel);
+		lblNewLabel.setBounds(10, 23, 68, 14);
+		panel_5.add(lblNewLabel);
 		
 		textField = new JTextField();
-		textField.setBounds(110, 167, 150, 20);
-		panel.add(textField);
+		textField.setBounds(151, 20, 264, 20);
+		panel_5.add(textField);
 		textField.setColumns(10);
 		
-		JButton btnNewButton = new JButton("Execute");
+		btnNewButton = new JButton("Execute");
+		btnNewButton.setBounds(326, 440, 89, 23);
+		panel_5.add(btnNewButton);		
+		
+		lblSelectFahrstreifen = new JLabel("Select Fahrstreifen:");
+		lblSelectFahrstreifen.setBounds(10, 48, 124, 14);
+		panel_5.add(lblSelectFahrstreifen);
+		
+		comboBox = new JComboBox();
+		comboBox.setModel(new DefaultComboBoxModel(new String[] {"1", "2", "3", "4", "5", "6"}));
+		comboBox.setSelectedIndex(0);
+		comboBox.setBounds(151, 45, 46, 20);
+		panel_5.add(comboBox);
+		
+		lblNewLabel_2 = new JLabel("Date from:");
+		lblNewLabel_2.setBounds(10, 103, 68, 14);
+		panel_5.add(lblNewLabel_2);
+		
+		lblDateTo = new JLabel("Date to:");
+		lblDateTo.setBounds(10, 305, 46, 14);
+		panel_5.add(lblDateTo);	
+		
+		dateChooser = new JDateChooser();
+		dateChooser.setBounds(75, 103, 102, 20);
+		dateChooser.setDate(new Date(112,5,1));
+		panel_5.add(dateChooser);
+		
+		dateChooser_1 = new JDateChooser();
+		dateChooser_1.setBounds(75, 299, 102, 20);
+		dateChooser_1.setDate(new Date(112,11,31));
+		panel_5.add(dateChooser_1);
+		
+		lblHhmmss = new JLabel("HH:mm:ss");
+		lblHhmmss.setBounds(187, 106, 62, 14);
+		panel_5.add(lblHhmmss);
+		
+		comboBox_1 = new JComboBox();
+		comboBox_1.setModel(new DefaultComboBoxModel(new String[] {"00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"}));
+		comboBox_1.setBounds(255, 103, 46, 20);
+		panel_5.add(comboBox_1);
+		
+		comboBox_2 = new JComboBox();
+		comboBox_2.setModel(new DefaultComboBoxModel(new String[] {"00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59"}));
+		comboBox_2.setBounds(314, 103, 46, 20);
+		panel_5.add(comboBox_2);
+		
+		comboBox_3 = new JComboBox();
+		comboBox_3.setModel(new DefaultComboBoxModel(new String[] {"00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59"}));
+		comboBox_3.setBounds(370, 103, 45, 20);
+		panel_5.add(comboBox_3);
+		
+		lblHhmmss_1 = new JLabel("HH:mm:ss");
+		lblHhmmss_1.setBounds(187, 305, 62, 14);
+		panel_5.add(lblHhmmss_1);
+		
+		comboBox_4 = new JComboBox();
+		comboBox_4.setModel(new DefaultComboBoxModel(new String[] {"00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"}));
+		comboBox_4.setSelectedIndex(23);
+		comboBox_4.setBounds(255, 302, 46, 20);
+		panel_5.add(comboBox_4);
+		
+		comboBox_5 = new JComboBox();
+		comboBox_5.setModel(new DefaultComboBoxModel(new String[] {"00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59"}));
+		comboBox_5.setSelectedIndex(59);
+		comboBox_5.setBounds(310, 302, 50, 20);
+		panel_5.add(comboBox_5);
+		
+		comboBox_6 = new JComboBox();
+		comboBox_6.setModel(new DefaultComboBoxModel(new String[] {"00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59"}));
+		comboBox_6.setSelectedIndex(59);
+		comboBox_6.setBounds(370, 302, 45, 20);
+		panel_5.add(comboBox_6);
+		
+		
+		
 		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(!chckbxNewCheckBox.isSelected() && !chckbxNewCheckBox_1.isSelected() && !chckbxNewCheckBox_2.isSelected() && !chckbxNewCheckBox_3.isSelected() 
-				&& !chckbxNewCheckBox_4.isSelected() && !chckbxNewCheckBox_5.isSelected() && !chckbxNewCheckBox_6.isSelected() && !chckbxNewCheckBox_7.isSelected() 
-				&& !chckbxNewCheckBox_8.isSelected() && !chckbxNewCheckBox_9.isSelected() && !chckbxNewCheckBox_10.isSelected() && !chckbxNewCheckBox_11.isSelected()
-				&& !chckbxNewCheckBox_12.isSelected() && !chckbxNewCheckBox_13.isSelected() && !chckbxNewCheckBox_14.isSelected() && !chckbxNewCheckBox_15.isSelected()
-				&& !chckbxNewCheckBox_16.isSelected() && !chckbxNewCheckBox_17.isSelected() && !chckbxNewCheckBox_18.isSelected() ){
-					JOptionPane.showConfirmDialog(null, "Please choose Induktivschleife", "validate", JOptionPane.CANCEL_OPTION);
+			public void actionPerformed(ActionEvent e) {				
+				if(listModel_des.isEmpty()){
+					JOptionPane.showConfirmDialog(null, "Please push some Induktiv to calculate Density", "validate", JOptionPane.CANCEL_OPTION);
 					return;
 				}
 				if(textField.getText().equals("")){
 					JOptionPane.showConfirmDialog(null, "Please choose filename", "validate", JOptionPane.CANCEL_OPTION);
 					return;
-				}
-				//run sql and write to file
-				Integer[] Induktivschleife = {2008002,2007853,2008259,2007956,2007865,2008265,2007871,2007938,2008313,2007932,2008307,2007889,2007920,2008301,2007895,2007914,2008295,2007902};
-				String sql;
-				if(chckbxNewCheckBox.isSelected()){
-					String sql_cond1 = " site in (";
-					String sql_cond2 = " CASE ";
-					for(int i = 0; i <Induktivschleife.length; i++){
-						sql_cond1 = sql_cond1 + String.valueOf(Induktivschleife[i]) + ",";
-						sql_cond2 = sql_cond2 + " WHEN site = " + String.valueOf(Induktivschleife[i]) + " THEN " + String.valueOf(i+1) + " ";
-					}
-					sql_cond1 = sql_cond1.substring(0, sql_cond1.length()-1);
-					sql_cond1 = sql_cond1 + ") ";
-					sql_cond2 = sql_cond2 + " ELSE site END ASC ";
-					
-					sql = " SELECT "
-							+ " site, tsp,  flow_lkw,  speed_lkw, flow_pkw, speed_pkw, "
-							+ "(case when speed_lkw=0 then 0 else flow_lkw/speed_lkw::float end)::numeric(7,2) as density_lkw,  "
-							+ "(case when speed_pkw=0 then 0 else flow_pkw/speed_pkw::float end)::numeric(7,2) as density_pkw "
-							+ "FROM mdp "
-							+ "WHERE " + sql_cond1 + " AND concentration != -1 "
-							+ "ORDER BY "
-							+ sql_cond2 +", tsp asc";
-							;
-							//System.out.println(sql);
-				}else{
-					JCheckBox[] checkboxs = {chckbxNewCheckBox_1,chckbxNewCheckBox_2,chckbxNewCheckBox_3,chckbxNewCheckBox_4,chckbxNewCheckBox_5,chckbxNewCheckBox_6,
-											 chckbxNewCheckBox_7,chckbxNewCheckBox_8,chckbxNewCheckBox_9,chckbxNewCheckBox_10,chckbxNewCheckBox_11,chckbxNewCheckBox_12,
-											 chckbxNewCheckBox_13,chckbxNewCheckBox_14,chckbxNewCheckBox_15,chckbxNewCheckBox_16,chckbxNewCheckBox_17,chckbxNewCheckBox_18};
-					String sql_cond1 = " site in (";
-					String sql_cond2 = " CASE ";
-					for (int i = 0; i < checkboxs.length; i ++ ){
-						if(checkboxs[i].isSelected()){
-							sql_cond1 = sql_cond1 + String.valueOf(Induktivschleife[i]) + ",";
-							sql_cond2 = sql_cond2 + " WHEN site = " + String.valueOf(Induktivschleife[i]) + " THEN " + String.valueOf(i+1) + " ";
-						}
-					}
-					sql_cond1 = sql_cond1.substring(0, sql_cond1.length()-1);
-					sql_cond1 = sql_cond1 + ") ";
-					sql_cond2 = sql_cond2 + " ELSE site END ASC ";
-					sql = " SELECT "
-							+ " site, tsp,  flow_lkw,  speed_lkw, flow_pkw, speed_pkw, "
-							+ "(case when speed_lkw=0 then 0 else flow_lkw/speed_lkw::float end)::numeric(7,2) as density_lkw,  "
-							+ "(case when speed_pkw=0 then 0 else flow_pkw/speed_pkw::float end)::numeric(7,2) as density_pkw "
-							+ "FROM mdp "
-							+ "WHERE " + sql_cond1 + " AND concentration != -1 "
-							+ "ORDER BY "
-							+ sql_cond2 +", tsp asc";
-							;
-							//System.out.println(sql);
-				}
-				
-				/*
-				sql = " SELECT "
-						+ "distinct site, tsp,  flow_lkw,  speed_lkw, flow_pkw, speed_pkw, "
-						+ "(case when speed_lkw=0 then 0 else flow_lkw*60/speed_lkw::float end)::numeric(7,2) as density_lkw,  "
-						+ "(case when speed_pkw=0 then 0 else flow_pkw*60/speed_pkw::float end)::numeric(7,2) as density_pkw "
-						+ "FROM mdp "
-						+ "WHERE site in (2000000,2000003) "
-						+ "ORDER BY "
-						+ "site asc,"
-						+ "tsp asc";
-				*/
-				Connection c = null;
-			    Statement stmt = null;
-			    System.out.println(sql);
-			    try {
-					c = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/detektordaten_hessen", "postgres", "Password2013");
-					stmt = c.createStatement();					
-					ResultSet rs = stmt.executeQuery(sql);										 
-					// write to CSV file
-					try
-					{
-						System.out.println("Begin write to csv...");									
-					    FileWriter writer = new FileWriter(textField.getText()+".csv");
-					    
-					    while ( rs.next() ) {
-				            String site 		= rs.getString("site");
-				            String tsp 			= rs.getString("tsp");
-				            String density_lkw 	= rs.getString("density_lkw");
-				            String density_pkw 	= rs.getString("density_pkw");				           
-				            writer.append(site+";"+tsp+";"+density_lkw+";"+density_pkw);				          
-				            if(!rs.isLast()){
-				            	writer.append("\n");
-				            }
-					    }
-					   
-					    writer.flush();
-					    writer.close();
-					    System.out.println("done!");
-					}
-					catch(IOException et)
-					{
-					     et.printStackTrace();
-					}
-					 rs.close();			         
-			         stmt.close();
-			         c.close();
-				} catch (SQLException er) { 					
-					return; 
-				}
-				
+				}				
+				btnNewButton.setEnabled(false);
+				task5 = new export_density_Task();
+				task5.execute();
 			}
 		});
-		btnNewButton.setBounds(30, 221, 89, 23);
-		panel.add(btnNewButton);
+		
+		JPanel panel_6 = new JPanel();
+		panel_6.setBorder(BorderFactory.createTitledBorder("Loging"));
+		panel_6.setBounds(1108, 11, 451, 474);
+		panel.add(panel_6);
+		panel_6.setLayout(null);
+		
+		JScrollPane scrollPane_3 = new JScrollPane();
+		scrollPane_3.setBounds(10, 21, 433, 385);
+		panel_6.add(scrollPane_3);
+		
+		DefaultSyntaxKit.initKit();
+		editorPane = new JEditorPane();
+		scrollPane_3.setViewportView(editorPane);
+		editorPane.setContentType("text/sql");		
+		
+		progressBar = new JProgressBar();
+		progressBar.setBounds(10, 433, 433, 30);		
+		panel_6.add(progressBar);				
+		
 		// END Tab Load density from DB
 		
 		JPanel panel_1 = new JPanel();
@@ -608,15 +490,15 @@ public class Density_Calc extends JFrame {
 		panel_1.add(btnNewButton_1);
 		
 		JLabel lblSetDensitySprung = new JLabel("Set Density Sprung:");
-		lblSetDensitySprung.setBounds(20, 44, 137, 14);
+		lblSetDensitySprung.setBounds(20, 44, 130, 14);
 		panel_1.add(lblSetDensitySprung);
 		
 		textField_2 = new JTextField();
-		textField_2.setBounds(283, 41, 86, 20);
+		textField_2.setBounds(187, 43, 54, 20);
 		panel_1.add(textField_2);
 		textField_2.setColumns(10);
 		
-		JButton btnExecute = new JButton("Execute");
+		JButton btnExecute = new JButton("Show Density on table without set Sprung");
 		btnExecute.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(filename.getText().equals("")){
@@ -698,11 +580,11 @@ public class Density_Calc extends JFrame {
 				
 			}
 		});
-		btnExecute.setBounds(527, 38, 137, 23);
+		btnExecute.setBounds(361, 40, 275, 23);
 		panel_1.add(btnExecute);
 		
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(20, 103, 1520, 398);
+		scrollPane.setBounds(20, 103, 1520, 382);
 		panel_1.add(scrollPane);
 		
 		table = new JTable();
@@ -710,19 +592,19 @@ public class Density_Calc extends JFrame {
 		scrollPane.setViewportView(table);	
 		
 		lblLkw = new JLabel("LKW:");
-		lblLkw.setBounds(242, 44, 46, 14);
+		lblLkw.setBounds(153, 46, 46, 14);
 		panel_1.add(lblLkw);
 		
 		lblPkw = new JLabel("PKW:");
-		lblPkw.setBounds(385, 44, 46, 14);
+		lblPkw.setBounds(251, 46, 46, 14);
 		panel_1.add(lblPkw);
 		
 		textField_1 = new JTextField();
-		textField_1.setBounds(431, 41, 86, 20);
+		textField_1.setBounds(297, 43, 54, 20);
 		panel_1.add(textField_1);
 		textField_1.setColumns(10);
 		
-		btnNewButton_2 = new JButton("show on Chart");
+		btnNewButton_2 = new JButton("Show on Chart without set  Sprung");
 		btnNewButton_2.addActionListener(new ActionListener() {
 			@SuppressWarnings("deprecation")
 			public void actionPerformed(ActionEvent arg0) {
@@ -875,7 +757,361 @@ public class Density_Calc extends JFrame {
 				
 			}
 		});
-		btnNewButton_2.setBounds(527, 72, 137, 23);
+		btnNewButton_2.setBounds(646, 40, 261, 23);
 		panel_1.add(btnNewButton_2);
+		
+		progressBar_1 = new JProgressBar();
+		progressBar_1.setBounds(20, 69, 1520, 23);
+		panel_1.add(progressBar_1);
+		
+		JButton btnNewButton_5 = new JButton("Show on chart with set Sprung");
+		btnNewButton_5.setBounds(917, 40, 294, 23);
+		panel_1.add(btnNewButton_5);
+		
+		JButton btnNewButton_6 = new JButton("Sto\u00DFwellen calculation and show on chart");
+		btnNewButton_6.setBounds(1220, 40, 320, 23);
+		panel_1.add(btnNewButton_6);
 	}
+	
+	// function append text to Jeditorpane
+	public void append_txt(JEditorPane ed, String s){
+		Document doc = ed.getDocument();
+		try {
+			doc.insertString(doc.getLength(), " \n "+s, null);
+		} catch (BadLocationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	//get index of one value in JList
+	public int get_index_of(DefaultListModel a, Object value){
+		for(int i = 0; i < a.getSize();i++){
+			if(a.getElementAt(i).equals(value)){
+				return i;
+			}
+		}
+		return -1;
+	}	
+	// function to reset progressBar status
+	public void reset_progress(){
+		progressBar.setIndeterminate(false);
+		progressBar.setValue(0);
+		progressBar.setForeground(new Color(163,184,204));
+	}
+	// to create multi task show on progressbar
+	// Task import InduktivSchleife from mst
+	class import_from_mst_Task extends SwingWorker<Void, Void>{
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		public Void doInBackground() throws Exception{
+			reset_progress();
+			progressBar.setIndeterminate(true);
+			String sql;
+			sql = "select \n distinct substring(site,2)::int as isch \n from mst \n order by isch asc";
+			Connection c = null;
+		    Statement stmt = null;
+		    listModel_source = new DefaultListModel();
+		    listModel_reset = new DefaultListModel();
+		    try {
+				c = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/detektordaten_hessen", "postgres", "Password2013");
+				stmt = c.createStatement();
+				append_txt(editorPane, "/*begin to run sql */ \n"+sql);
+				ResultSet rs = stmt.executeQuery(sql);								 
+				while ( rs.next() ) {
+			       String site = rs.getString("isch");
+			       listModel_source.addElement(site);
+			       listModel_reset.addElement(site);
+			    }
+				list1 = new JList(listModel_source);
+				scrollPane_1.setViewportView(list1);
+				 rs.close();			         
+		         stmt.close();
+		         c.close();
+		        progressBar.setIndeterminate(false);
+		        progressBar.setValue(100);
+		        append_txt(editorPane, "/*done!*/");
+		        error = false;
+			} catch (SQLException er) { 				
+				System.out.println(er.getMessage());				
+				append_txt(editorPane, "/*fails: "+er.getMessage()+"*/");				
+				error = true;
+				return null; 
+			}
+			return null;
+		}
+		@Override
+		public void done(){
+			append_txt(editorPane, "-----------------------------------------------");
+			if(error){
+				progressBar.setIndeterminate(false);
+				progressBar.setValue(100);
+				progressBar.setForeground(Color.red);	
+				btnNewButton_4.setEnabled(true);
+			}else{
+				progressBar.setIndeterminate(false);
+				progressBar.setValue(100);
+				btnNewButton_4.setEnabled(true);
+			}
+		}
+	}
+	// Task  import InduktivSchleife from mst
+	class import_from_mdp_Task extends SwingWorker<Void, Void>{
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		public Void doInBackground(){
+			reset_progress();
+			progressBar.setIndeterminate(true);
+			sql = "select \n distinct site \n from mdp \n order by site asc";
+			Connection c = null;
+		    Statement stmt = null;
+		    listModel_source = new DefaultListModel();
+		    listModel_reset = new DefaultListModel();
+		    try {
+				c = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/detektordaten_hessen", "postgres", "Password2013");
+				stmt = c.createStatement();	
+				append_txt(editorPane, "/*begin to run sql */ \n"+sql);
+				ResultSet rs = stmt.executeQuery(sql);									 
+				while ( rs.next() ) {
+			       String site = rs.getString("site");
+			       listModel_source.addElement(site);
+			       listModel_reset.addElement(site);
+			    }
+				list1 = new JList(listModel_source);
+				scrollPane_1.setViewportView(list1);
+				 rs.close();			         
+		         stmt.close();
+		         c.close();
+		        error = false;
+		        append_txt(editorPane, "/*done!*/");
+			} catch (SQLException er) { 
+				System.out.println(er.getMessage());								
+				append_txt(editorPane, "/*fails: "+er.getMessage()+"*/");
+				error = true;
+				return null; 
+			}
+			return null;
+		}
+		@Override	
+		public void done(){
+			append_txt(editorPane, "-----------------------------------------------");
+			if(error){
+				progressBar.setIndeterminate(false);
+				progressBar.setValue(100);
+				progressBar.setForeground(Color.red);	
+				btnLoadFromMdp.setEnabled(true);
+			}else{
+				progressBar.setIndeterminate(false);
+				progressBar.setValue(100);
+				btnLoadFromMdp.setEnabled(true);
+			}
+		}
+	}
+	
+	// Task  import InduktivSchleife from file
+	class import_from_file_Task extends SwingWorker<Void, Void>{
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		public Void doInBackground(){
+			reset_progress();
+			progressBar.setIndeterminate(true);
+			append_txt(editorPane, "/*Begin to read file: "+fileChooser2.getSelectedFile().getAbsolutePath()+"*/");			
+			listModel_source = new DefaultListModel();
+			listModel_reset = new DefaultListModel();
+			try {
+				String sCurrentLine;
+				FileInputStream fstream = new FileInputStream(fileChooser2.getSelectedFile().getAbsolutePath());
+				@SuppressWarnings("resource")
+				BufferedReader br = new BufferedReader(new InputStreamReader(fstream));				
+				while ((sCurrentLine = br.readLine()) != null) {	
+					listModel_source.addElement(sCurrentLine.trim());
+					listModel_reset.addElement(sCurrentLine.trim());
+				}
+				list1 = new JList(listModel_source);
+				scrollPane_1.setViewportView(list1);
+				error = false;
+		        append_txt(editorPane, "/*done!*/");
+				
+			} catch (FileNotFoundException ej) {
+				ej.printStackTrace();
+				error = true;
+				append_txt(editorPane, ej.getMessage());
+			} catch (IOException ej) {
+				ej.printStackTrace();
+				error = true;
+				append_txt(editorPane, ej.getMessage());
+			}
+			return null;
+		}
+		@Override		
+		public void done(){		
+			append_txt(editorPane, "-----------------------------------------------");
+			if(error){
+				progressBar.setIndeterminate(false);
+				progressBar.setValue(100);
+				progressBar.setForeground(Color.red);	
+				btnNewButton_3.setEnabled(true);
+			}else{
+				progressBar.setIndeterminate(false);
+				progressBar.setValue(100);
+				btnNewButton_3.setEnabled(true);
+			}
+		}
+	}
+	
+	// Task  export InduktivSchleife to file
+	class export_induktiv_Task extends SwingWorker<Void, Void>{
+		@Override
+		public Void doInBackground(){			
+			reset_progress();
+			progressBar.setIndeterminate(true);
+			sql = "select \n distinct site \n from mdp \n order by site asc";
+			Connection c = null;
+		    Statement stmt = null;		    
+		    try {
+				c = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/detektordaten_hessen", "postgres", "Password2013");
+				stmt = c.createStatement();
+				append_txt(editorPane, "/*begin to run sql*/ \n "+sql);
+				ResultSet rs = stmt.executeQuery(sql);	
+				append_txt(editorPane, "/*Done!*/ \n /*Begin to write Induktiv to "+textField_3.getText()+".csv"+" file line by line*/ ");																 
+				// write to CSV file
+				try
+				{													
+				    FileWriter writer = new FileWriter(textField_3.getText()+".csv");				    
+				    while ( rs.next() ) {
+			            String site = rs.getString("site");			           				           
+			            writer.append(site);				          
+			            if(!rs.isLast()){
+			            	writer.append("\n");
+			            }
+				    }				   
+				    writer.flush();
+				    writer.close();				   
+				    append_txt(editorPane, "/*Done!*/");
+				}
+				catch(IOException et)
+				{
+				     et.printStackTrace();
+				     append_txt(editorPane, "/*fails: "+et.getMessage()+"*/");
+				     error = true;
+				     return null;
+				}	
+				rs.close();			         
+		        stmt.close();
+		        c.close();
+		        error = false;		       
+			} catch (SQLException er) { 
+				System.out.println(er.getMessage());								
+				append_txt(editorPane, "/*fails: "+er.getMessage()+"*/");
+				error = true;
+				return null; 
+			}
+			return null;
+		}
+		@Override			
+		public void done(){	
+			append_txt(editorPane, "-----------------------------------------------");
+			if(error){
+				progressBar.setIndeterminate(false);
+				progressBar.setValue(100);
+				progressBar.setForeground(Color.red);	
+				btnExport.setEnabled(true);
+			}else{
+				progressBar.setIndeterminate(false);
+				progressBar.setValue(100);
+				btnExport.setEnabled(true);
+			}				
+		}
+	}
+	// Task  export Density to file
+	class export_density_Task extends SwingWorker<Void, Void>{
+		@Override
+		public Void doInBackground(){
+			reset_progress();
+			progressBar.setIndeterminate(true);
+			String fahr_streifen = comboBox.getSelectedItem().toString();
+			Object [] tmp_arr = listModel_des.toArray();
+			SimpleDateFormat fmt = new java.text.SimpleDateFormat("yyyy-MM-dd");			
+			String sql_cond3 = " AND tsp >= '"+fmt.format(dateChooser.getDate()).toString()+" "+comboBox_1.getSelectedItem().toString()+":"+comboBox_2.getSelectedItem().toString()+":"+comboBox_3.getSelectedItem().toString()+"' \n ";
+			sql_cond3 = sql_cond3 + " AND tsp <= '"+fmt.format(dateChooser_1.getDate()).toString()+" "+comboBox_4.getSelectedItem().toString()+":"+comboBox_5.getSelectedItem().toString()+":"+comboBox_6.getSelectedItem().toString()+"' \n ";
+			//build query base on destination Induktiv-Schleife	
+			String sql_cond1 = " site in (";
+			String sql_cond2 = " CASE \n ";
+			for(int i = 0; i <tmp_arr.length; i++){
+				sql_cond1 = sql_cond1 + String.valueOf(tmp_arr[i]) + ",";
+				sql_cond2 = sql_cond2 + " WHEN site = " + String.valueOf(tmp_arr[i]) + " THEN " + String.valueOf(i+1) + " \n ";
+			}
+			sql_cond1 = sql_cond1.substring(0, sql_cond1.length()-1);
+			sql_cond1 = sql_cond1 + ") \n ";
+			sql_cond2 = sql_cond2 + " ELSE site END ASC ";
+			sql = "SELECT \n"
+					+ " site, tsp,  flow_lkw,  speed_lkw, flow_pkw, speed_pkw, \n "
+					+ "(case when speed_lkw=0 then 0 else flow_lkw/speed_lkw::float end)::numeric(7,2) as density_lkw, \n "
+					+ "(case when speed_pkw=0 then 0 else (flow_pkw/speed_pkw)/"+fahr_streifen+"::float end)::numeric(7,2) as density_pkw \n "
+					+ "FROM mdp \n "
+					+ "WHERE \n " + sql_cond1 + sql_cond3 + " AND concentration != -1 \n "
+					+ "ORDER BY \n "
+					+ sql_cond2 +", tsp asc";
+					;					
+			Connection c = null;
+		    Statement stmt = null;		   
+		    try {
+				c = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/detektordaten_hessen", "postgres", "Password2013");
+				stmt = c.createStatement();
+				append_txt(editorPane, "/*begin to run sql*/ \n "+sql);
+				ResultSet rs = stmt.executeQuery(sql);	
+				append_txt(editorPane, "/*Done!*/ \n /*Begin to write Density to file "+textField.getText()+".csv line by line*/");																	 
+				// write to CSV file
+				try
+				{													
+				    FileWriter writer = new FileWriter(textField.getText()+".csv");				    
+				    while ( rs.next() ) {
+				    	String site 		= rs.getString("site");
+			            String tsp 			= rs.getString("tsp");
+			            String density_lkw 	= rs.getString("density_lkw");
+			            String density_pkw 	= rs.getString("density_pkw");				           
+			            writer.append(site+";"+tsp+";"+density_lkw+";"+density_pkw);				          
+			            if(!rs.isLast()){
+			            	writer.append("\n");
+			            }
+				    }				   
+				    writer.flush();
+				    writer.close();				   
+				    append_txt(editorPane, "/*Done!*/");
+				}
+				catch(IOException et)
+				{
+				     et.printStackTrace();
+				     append_txt(editorPane, "/*fails: "+et.getMessage()+"*/");
+				     error = true;
+				     return null;
+				}	
+				rs.close();			         
+		        stmt.close();
+		        c.close();
+		        error = false;		       
+			} catch (SQLException er) { 
+				System.out.println(er.getMessage());								
+				append_txt(editorPane, "/*fails: "+er.getMessage()+"*/");
+				error = true;
+				return null; 
+			}
+			return null;
+		}
+		@Override				
+		public void done(){		
+			append_txt(editorPane, "-----------------------------------------------");
+			if(error){
+				progressBar.setIndeterminate(false);
+				progressBar.setValue(100);
+				progressBar.setForeground(Color.red);	
+				btnNewButton.setEnabled(true);
+			}else{
+				progressBar.setIndeterminate(false);
+				progressBar.setValue(100);
+				btnNewButton.setEnabled(true);
+			}				
+		}
+	}
+	// Task to show all density from file to table (without set Sprung)
+	
 }
