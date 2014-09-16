@@ -3,6 +3,7 @@ package density_pkg;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -50,6 +51,7 @@ import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.time.Second;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -131,6 +133,9 @@ public class Density_Calc extends JFrame {
 	private JButton btnExecute;
 	private show_density_on_table_without_set_sprung task6;
 	private int line_nr;
+	private JButton btnNewButton_5;
+	private show_density_on_chart_with_set_sprung task7;
+	private show_density_on_chart_without_set_sprung task8;
 	/**
 	 * Launch the application.
 	 */
@@ -534,156 +539,15 @@ public class Density_Calc extends JFrame {
 		textField_1.setColumns(10);
 		
 		btnNewButton_2 = new JButton("Show on Chart without set  Sprung");
-		btnNewButton_2.addActionListener(new ActionListener() {
-			@SuppressWarnings("deprecation")
-			public void actionPerformed(ActionEvent arg0) {
+		btnNewButton_2.addActionListener(new ActionListener() {		
+			public void actionPerformed(ActionEvent arg0) {				
 				if(filename.getText().equals("")){
 					JOptionPane.showConfirmDialog(null, "please choose csv files", "validate", JOptionPane.CANCEL_OPTION);					
 					return;
 				}
-				try{
-					//read csv file, calculate and display on chart
-					int sprunglkw = Integer.parseInt(textField_2.getText());
-					int sprungpkw = Integer.parseInt(textField_1.getText());
-					try {
-						String sCurrentLine;
-						FileInputStream fstream = new FileInputStream(filename.getText());
-						@SuppressWarnings({ "resource", "unused" })
-						BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
-						@SuppressWarnings("resource")
-						BufferedReader br1 = new BufferedReader(new InputStreamReader(fstream));
-						String[] items = null;
-						int count = 0;						
-						String site_i = null;
-						String tsp_i = null;
-						String density_lkw_i = null;
-						String density_pkw_i = null;
-						String site_j;
-						String tsp_j;
-						String density_lkw_j;
-						String density_pkw_j;
-						float density_sprung_lkw;
-						float density_sprung_pkw;
-						//create chart									
-						SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssX");
-						TimeSeries series = null;
-						TimeSeries series1 = null;
-						TimeSeriesCollection result = null;						
-						
-						//**//
-						@SuppressWarnings("unused")
-						XYDataset dataset = null;
-						CombinedDomainXYPlot plot = new CombinedDomainXYPlot(new DateAxis("Time"));
-						StandardXYItemRenderer renderer = null;						
-						XYPlot subplot = null;
-						NumberAxis rangeAxis = null;
-						PlotOrientation orientation = PlotOrientation.VERTICAL;
-						XYToolTipGenerator toolTipGenerator = new StandardXYToolTipGenerator();
-						//**//
-						System.out.println("begin read file line by line to draw chart");
-						while ((sCurrentLine = br1.readLine()) != null) {
-							
-							items = sCurrentLine.split(";");
-							if(count == 0){
-								site_i = items[0];
-								tsp_i = items[1];
-								density_lkw_i = items[2];
-								density_pkw_i = items[3];
-								series = new TimeSeries("P"+site_i.toString()+" LKW",Second.class);
-								series1 = new TimeSeries("P"+site_i.toString()+" PKW",Second.class);
-								//**//
-								result = new TimeSeriesCollection();
-								//**//
-							}else{
-								site_j = items[0];
-								tsp_j = items[1];
-								density_lkw_j = items[2];
-								density_pkw_j = items[3];
-								if(Integer.parseInt(site_j) == Integer.parseInt(site_i)){
-									//calculate absolut value of density sprung to next point
-									density_sprung_lkw = Math.abs(Float.parseFloat(density_lkw_i) - Float.parseFloat(density_lkw_j));
-									density_sprung_pkw = Math.abs(Float.parseFloat(density_pkw_i) - Float.parseFloat(density_pkw_j));
-									if(density_sprung_lkw>=(float)sprunglkw){										
-										try {
-											series.add(new Second(format.parse(tsp_i)), density_sprung_lkw);
-										} catch (ParseException e) {											
-											e.printStackTrace();
-										}										
-									}
-									if(density_sprung_pkw>=(float)sprungpkw){										
-										try {											
-											series1.add(new Second( format.parse(tsp_i)), density_sprung_pkw);
-										} catch (ParseException e) {
-											e.printStackTrace();
-										}									
-									}
-									site_i = site_j;
-									tsp_i = tsp_j;
-									density_lkw_i = density_lkw_j;
-									density_pkw_i = density_pkw_j;
-								}else{
-									result.addSeries(series);
-							 		result.addSeries(series1);
-							 		//**//
-							 		renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, toolTipGenerator,null);
-							 		renderer.setShapesFilled(Boolean.TRUE);
-							 		rangeAxis = new NumberAxis();
-							 		subplot = new XYPlot(result,null,rangeAxis, renderer);
-							 		plot.add(subplot);
-							 		//**//
-									count = -1;									
-								}
-							}							
-							count++;
-						}			
-						System.out.println("done!");
-							//add the last one
-							result.addSeries(series);
-							result.addSeries(series1);
-							//**//
-							renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, toolTipGenerator,null);
-							renderer.setShapesFilled(Boolean.TRUE);
-					 		rangeAxis = new NumberAxis();
-					 		subplot = new XYPlot(result,null,rangeAxis, renderer);
-					 		plot.add(subplot);
-					 		plot.setGap(5.0);
-					 		plot.setOrientation(orientation);
-					 		JFreeChart chart = new JFreeChart("Density", JFreeChart.DEFAULT_TITLE_FONT, plot, false);
-					 		//**//
-							//Chart config
-							/*
-						 	XYDataset dataset = (XYDataset)(result);
-						 	PlotOrientation orientation = PlotOrientation.VERTICAL;
-						 	DateAxis xAxis = new DateAxis("Time");
-						 	xAxis.setDateFormatOverride(new SimpleDateFormat("dd/MM/yyyy"));
-						 	NumberAxis yAxis = new NumberAxis("Sprung");
-						 	yAxis.setAutoRangeIncludesZero(false);
-						 	XYPlot plot = new XYPlot(dataset, xAxis, yAxis, null);
-						 	XYToolTipGenerator toolTipGenerator = new StandardXYToolTipGenerator();
-						 	XYURLGenerator urlGenerator = null;						 	
-						 	StandardXYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, toolTipGenerator, urlGenerator);
-						 	renderer.setShapesFilled(Boolean.TRUE);
-						    plot.setRenderer(renderer);
-						    plot.setOrientation(orientation);
-						    
-						    JFreeChart chart = new JFreeChart("Density", JFreeChart.DEFAULT_TITLE_FONT, plot, true);					 
-						    */
-						    //Show chart
-						    ChartFrame  frame1 = new ChartFrame("scaterPlot", chart);
-						    Dimension fullScreen = Toolkit.getDefaultToolkit().getScreenSize(); 
-							frame1.setPreferredSize(fullScreen);
-							frame1.pack();
-							frame1.setVisible(true);
-						
-					} catch (FileNotFoundException ej) {
-						ej.printStackTrace();
-					} catch (IOException ej) {
-						ej.printStackTrace();
-					} 
-				}catch(NumberFormatException el){
-					JOptionPane.showConfirmDialog(null, "Please enter numbers only for density Sprung", "validate", JOptionPane.CANCEL_OPTION);
-				}
-				
+				btnNewButton_2.setEnabled(false);
+				task8 = new show_density_on_chart_without_set_sprung();
+				task8.execute();
 			}
 		});
 		btnNewButton_2.setBounds(646, 40, 261, 23);
@@ -693,11 +557,34 @@ public class Density_Calc extends JFrame {
 		progressBar_1.setBounds(20, 69, 1520, 23);
 		panel_1.add(progressBar_1);
 		
-		JButton btnNewButton_5 = new JButton("Show on chart with set Sprung");
+		btnNewButton_5 = new JButton("Show on chart with set Sprung");
+		btnNewButton_5.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(filename.getText().equals("")){
+					JOptionPane.showConfirmDialog(null, "please choose csv files", "validate", JOptionPane.CANCEL_OPTION);					
+					return;
+				}
+				btnNewButton_5.setEnabled(false);
+				task7 = new show_density_on_chart_with_set_sprung();
+				task7.execute();
+			}
+		});
 		btnNewButton_5.setBounds(917, 40, 294, 23);
 		panel_1.add(btnNewButton_5);
 		
 		JButton btnNewButton_6 = new JButton("Sto\u00DFwellen calculation and show on chart");
+		btnNewButton_6.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				System.out.println((int)Math.round(Float.parseFloat(distand_between("2008002","2007853"))*10));
+				/*String [] a = next_sprung("2008002","2012-08-07 16:40:00+2",10,25,2);
+				if(a != null){
+					System.out.println(a[0]);
+					System.out.println(a[1]);
+				}else{
+					System.out.println("jojawfp");
+				}*/
+			}
+		});
 		btnNewButton_6.setBounds(1220, 40, 320, 23);
 		panel_1.add(btnNewButton_6);
 	}
@@ -733,6 +620,99 @@ public class Density_Calc extends JFrame {
 		progressBar_1.setValue(0);
 		progressBar_1.setForeground(new Color(163,184,204));
 	}
+	//funtion to calculate distand between to point
+	public String distand_between(String site1, String site2){
+		String result = null;
+		sql = "SELECT (ST_Distance_Sphere( "+
+				"ST_GeomFromText('POINT(' || (select ST_X(ST_TRANSFORM(coords_4326,4326)) FROM mst where site = 'R"+site1+"') || (select ST_Y(ST_TRANSFORM(coords_4326,4326)) FROM mst where site = 'R"+site1+"') || ')' ),"+
+				"ST_GeomFromText('POINT(' || (select ST_X(ST_TRANSFORM(coords_4326,4326)) FROM mst where site = 'R"+site2+"') || (select ST_Y(ST_TRANSFORM(coords_4326,4326)) FROM mst where site = 'R"+site2+"') || ')' ) "+
+				")/1000)::numeric(7,3) AS DISTANCE_IN_KM";
+		Connection c = null;
+	    Statement stmt = null;
+	    try {
+			c = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/detektordaten_hessen", "postgres", "Password2013");
+			stmt = c.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+			while ( rs.next() ) {
+				result = rs.getString("DISTANCE_IN_KM");
+			}
+			rs.close();			         
+	        stmt.close();
+	        c.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return  null;
+		}
+	    return result;
+		
+	}
+	
+	/**
+	 * funtion to calculate if next point has Density Sprung
+	 * return null or array[site,tsp] of next sprung point
+	 */
+	public String[] next_sprung(String next_point, String start_time,int duration_in_minute, float sprung, int fahr_streifen){		
+		if(next_point == null){
+			return null;
+		}
+		String sql = null;
+		sql = "select site ,tsp ,(case when speed_lkw=0 then 0 else flow_lkw/speed_lkw::float end)::numeric(7,2) as density_lkw, "+
+				"(case when speed_pkw=0 then 0 else (flow_pkw/speed_pkw)/"+fahr_streifen+"::float end)::numeric(7,2) as density_pkw "+
+				" FROM mdp "+
+				" WHERE site = '"+next_point +"' AND "+
+				"  tsp > '"+start_time+"' AND " + 
+				" tsp <= (select TIMESTAMP '"+start_time+"' + '"+duration_in_minute*60+" seconds') " +
+				" ORDER BY tsp asc";
+		
+		boolean found = false;
+		String site_i = null;		
+		String density_lkw_i = null;
+		String density_pkw_i = null;			
+		String tsp_j = null;
+		String density_lkw_j;
+		String density_pkw_j;
+		float density_sprung_lkw;
+		float density_sprung_pkw;
+		Connection c = null;
+	    Statement stmt = null;
+	    try {
+			c = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/detektordaten_hessen", "postgres", "Password2013");
+			stmt = c.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);			
+			int count = 0;
+			while ( rs.next() ) {
+		    	if(count == 0){
+		    		site_i =  rs.getString("site");		    		
+		    		density_lkw_i = rs.getString("density_lkw");
+		    		density_pkw_i = rs.getString("density_pkw");
+		    	}else{
+		    		tsp_j = rs.getString("tsp");
+		    		density_lkw_j = rs.getString("density_lkw");
+		    		density_pkw_j = rs.getString("density_pkw");
+		    		density_sprung_lkw = Math.abs(Float.parseFloat(density_lkw_i) - Float.parseFloat(density_lkw_j));
+					density_sprung_pkw = Math.abs(Float.parseFloat(density_pkw_i) - Float.parseFloat(density_pkw_j));					
+					if(density_sprung_lkw>=sprung || density_sprung_pkw >=sprung){
+						found = true;
+						break;
+					}else{						
+						density_lkw_i = density_lkw_j;
+						density_pkw_i = density_pkw_j;
+					}
+		    	}
+	           count++; 			          
+			}
+		} catch (SQLException e) {			
+			e.printStackTrace();
+			return null;
+		}
+	    if(found){
+	    	String[] a = {site_i,tsp_j};
+	    	return a;
+	    }
+		return null;
+	}
+	
 	// to create multi task show on progressbar
 	// Task import InduktivSchleife from mst
 	class import_from_mst_Task extends SwingWorker<Void, Void>{
@@ -986,19 +966,35 @@ public class Density_Calc extends JFrame {
 					+ "WHERE \n " + sql_cond1 + sql_cond3 + " AND concentration != -1 \n "
 					+ "ORDER BY \n "
 					+ sql_cond2 +", tsp asc";
-					;					
+					;		
+			String sql1 = "SELECT  \n count(*) as num  \n FROM mdp  \n WHERE  \n "+ sql_cond1 + sql_cond3 + " AND concentration != -1  \n ";
 			Connection c = null;
-		    Statement stmt = null;		   
-		    try {
-				c = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/detektordaten_hessen", "postgres", "Password2013");
-				stmt = c.createStatement();
-				append_txt(editorPane, "/*begin to run sql*/ \n "+sql);
-				ResultSet rs = stmt.executeQuery(sql);	
-				append_txt(editorPane, "/*Done!*/ \n /*Begin to write Density to file "+textField.getText()+".csv line by line*/");																	 
-				// write to CSV file
-				try
-				{													
-				    FileWriter writer = new FileWriter(textField.getText()+".csv");				    
+		    Statement stmt = null;
+		    FileWriter writer;
+			try {
+				writer = new FileWriter(textField.getText()+".csv");
+				// write first row = list of induktiv
+				String ar_of_induk = "";
+			    for(int i = 0; i <tmp_arr.length; i++){
+			    	ar_of_induk = ar_of_induk + String.valueOf(tmp_arr[i])+";";
+			    }
+			    ar_of_induk = ar_of_induk.substring(0, ar_of_induk.length()-1);
+			    writer.append(ar_of_induk+" \n");
+			    //second row fahrstreifen				    
+			    writer.append(fahr_streifen+" \n");
+			    //third row write number of lines
+			    try {
+					c = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/detektordaten_hessen", "postgres", "Password2013");
+					stmt = c.createStatement();
+					append_txt(editorPane, "/*count number of rows*/ \n "+ sql1);
+					ResultSet rs1 = stmt.executeQuery(sql1);
+					while(rs1.next()){
+				    	writer.append(rs1.getString("num")+" \n");
+				    }
+					rs1.close();
+					append_txt(editorPane, "/*begin to run sql*/ \n "+sql);
+					ResultSet rs = stmt.executeQuery(sql);
+					//write rows
 				    while ( rs.next() ) {
 				    	String site 		= rs.getString("site");
 			            String tsp 			= rs.getString("tsp");
@@ -1012,24 +1008,23 @@ public class Density_Calc extends JFrame {
 				    writer.flush();
 				    writer.close();				   
 				    append_txt(editorPane, "/*Done!*/");
+				    rs.close();			         
+			        stmt.close();
+			        c.close();
+			        error = false;
+				} catch (SQLException er) {
+					append_txt(editorPane, "/*fails: "+er.getMessage()+"*/");
+					error = true;
+					writer.flush();
+				    writer.close();
+					return null;
 				}
-				catch(IOException et)
-				{
-				     et.printStackTrace();
-				     append_txt(editorPane, "/*fails: "+et.getMessage()+"*/");
-				     error = true;
-				     return null;
-				}	
-				rs.close();			         
-		        stmt.close();
-		        c.close();
-		        error = false;		       
-			} catch (SQLException er) { 
-				System.out.println(er.getMessage());								
-				append_txt(editorPane, "/*fails: "+er.getMessage()+"*/");
-				error = true;
-				return null; 
-			}
+			} catch (IOException et) {
+				et.printStackTrace();
+				append_txt(editorPane, "/*fails: "+et.getMessage()+"*/");
+			    error = true;
+			    return null;
+			}		   
 			return null;
 		}
 		@Override				
@@ -1054,25 +1049,6 @@ public class Density_Calc extends JFrame {
 			reset_progress1();			
 			// how many rows in file
 			line_nr = 0;
-			try {
-				FileInputStream fstream_init = new FileInputStream(filename.getText());
-				@SuppressWarnings("resource")
-				BufferedReader br_init = new BufferedReader(new InputStreamReader(fstream_init));				
-				String tmp;
-				while((tmp = br_init.readLine()) != null){
-					line_nr++;
-				}
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-				error = true;
-				btnExecute.setEnabled(true);				
-			} catch (IOException e) {
-				e.printStackTrace();
-				error = true;
-				btnExecute.setEnabled(true);
-			}
-			progressBar_1.setMinimum(0);
-			progressBar_1.setMaximum(line_nr);
 			// calculate density and write to table
 			try{
 				String sCurrentLine;
@@ -1098,14 +1074,23 @@ public class Density_Calc extends JFrame {
 				float density_sprung_pkw;
 				System.out.println("begin read file line by line to write in to table");
 				while ((sCurrentLine = br.readLine()) != null) {
+					if(line_nr == 0 || line_nr == 1 ){
+						line_nr++;
+						continue;
+					}
+					if(line_nr == 2){
+						progressBar_1.setMinimum(0);
+						progressBar_1.setMaximum((int)Integer.parseInt(sCurrentLine.trim()));
+						line_nr++;
+						continue;
+					}					
 					items = sCurrentLine.split(";");
 					if(count == 0){
 						site_i = items[0];
 						tsp_i = items[1];
 						density_lkw_i = items[2];
 						density_pkw_i = items[3];
-						dtm.addRow(new Object[] { site_i, tsp_i, density_lkw_i,density_pkw_i, "-", "-"});
-						progressBar_1.setValue(progress_status);
+						dtm.addRow(new Object[] { site_i, tsp_i, density_lkw_i,density_pkw_i, "-", "-"});						
 					}else{
 						site_j = items[0];
 						tsp_j = items[1];
@@ -1121,13 +1106,13 @@ public class Density_Calc extends JFrame {
 							density_lkw_i = density_lkw_j;
 							density_pkw_i = density_pkw_j;
 						}else{
-							count = -1;	
-							
+							count = -1;								
 						}
-						progressBar_1.setValue(progress_status);
 					}					
-					count++;
+					count++;					
+					progressBar_1.setValue(progress_status);
 					progress_status++;
+					line_nr++;
 				}
 				System.out.println("done!");
 				error = false;
@@ -1148,82 +1133,346 @@ public class Density_Calc extends JFrame {
 				progressBar_1.setForeground(Color.red);					
 				btnExecute.setEnabled(true);
 			}else{
-				progressBar_1.setValue(line_nr);
+				progressBar_1.setValue(line_nr-3);
 				btnExecute.setEnabled(true);
 			}
-		}
-		/*
-		 try{
-					//read csv file, calculate and display on table
-					int sprunglkw = Integer.parseInt(textField_2.getText());
-					int sprungpkw = Integer.parseInt(textField_1.getText());					
-					
-					try {
-						String sCurrentLine;
-						FileInputStream fstream = new FileInputStream(filename.getText());
-						@SuppressWarnings("resource")
-						BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
-						String[] items = null;
-						int count = 0;						
-						String site_i = null;
-						String tsp_i = null;
-						String density_lkw_i = null;
-						String density_pkw_i = null;
-						String site_j;
-						String tsp_j;
-						String density_lkw_j;
-						String density_pkw_j;
-						float density_sprung_lkw;
-						float density_sprung_pkw;
-						DefaultTableModel dtm = new DefaultTableModel(0, 0);
-						//add header of the table
-						String header[] = new String[] { "site", "tsp", "density_lkw", "density_pkw", "density_Sprung_LKW", "density_Sprung_PKW" };
-						//add header in table model
-						dtm.setColumnIdentifiers(header);
-						table.setModel(dtm);
-						System.out.println("begin read file line by line to write in to table");
-						while ((sCurrentLine = br.readLine()) != null) {
-							items = sCurrentLine.split(";");
-							if(count == 0){
-								site_i = items[0];
-								tsp_i = items[1];
-								density_lkw_i = items[2];
-								density_pkw_i = items[3];
-							}else{
-								site_j = items[0];
-								tsp_j = items[1];
-								density_lkw_j = items[2];
-								density_pkw_j = items[3];
-								if(Integer.parseInt(site_j) == Integer.parseInt(site_i)){
-									//calculate absolut value of density sprung to next point
-									density_sprung_lkw = Math.abs(Float.parseFloat(density_lkw_i) - Float.parseFloat(density_lkw_j));
-									density_sprung_pkw = Math.abs(Float.parseFloat(density_pkw_i) - Float.parseFloat(density_pkw_j));
-									if(density_sprung_lkw>=(float)sprunglkw || density_sprung_pkw>=(float)sprungpkw){
-										dtm.addRow(new Object[] { site_i, tsp_i, density_lkw_i,density_pkw_i, Float.toString(density_sprung_lkw), Float.toString(density_sprung_pkw)});
-									}
-									site_i = site_j;
-									tsp_i = tsp_j;
-									density_lkw_i = density_lkw_j;
-									density_pkw_i = density_pkw_j;
-								}else{
-									count = -1;
-									
-								}
-							}
-							
-							count++;
-						}
-						System.out.println("done!");
-						
-					} catch (FileNotFoundException ej) {
-						ej.printStackTrace();
-					} catch (IOException ej) {
-						ej.printStackTrace();
-					} 
-					
-				}catch(NumberFormatException el){
-					JOptionPane.showConfirmDialog(null, "Please enter numbers only for density Sprung", "validate", JOptionPane.CANCEL_OPTION);
-				}
-		 */
+		}		
 	}
+	// Task show show density on chart with set Sprung
+	class show_density_on_chart_with_set_sprung extends SwingWorker<Void, Void>{
+		@Override
+		public Void doInBackground(){
+			reset_progress1();			
+			// how many rows in file
+			line_nr = 0;		
+			
+			//read csv file, calculate and display on chart
+			try{
+				int sprunglkw = Integer.parseInt(textField_2.getText());
+				int sprungpkw = Integer.parseInt(textField_1.getText());
+				String sCurrentLine;
+				FileInputStream fstream = new FileInputStream(filename.getText());
+				@SuppressWarnings({ "resource", "unused" })
+				BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
+				@SuppressWarnings("resource")
+				BufferedReader br1 = new BufferedReader(new InputStreamReader(fstream));
+				String[] items = null;
+				int count = 0;
+				int progress_status = 0;
+				String site_i = null;
+				String tsp_i = null;
+				String density_lkw_i = null;
+				String density_pkw_i = null;
+				String site_j;
+				String tsp_j;
+				String density_lkw_j;
+				String density_pkw_j;
+				float density_sprung_lkw;
+				float density_sprung_pkw;
+				//create chart									
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssX");
+				TimeSeries series = null;
+				TimeSeries series1 = null;
+				TimeSeriesCollection result = null;						
+					
+				//**//
+				@SuppressWarnings("unused")
+				XYDataset dataset = null;
+				CombinedDomainXYPlot plot = new CombinedDomainXYPlot(new DateAxis("Time"));
+				StandardXYItemRenderer renderer = null;						
+				XYPlot subplot = null;
+				NumberAxis rangeAxis = null;
+				PlotOrientation orientation = PlotOrientation.VERTICAL;
+				XYToolTipGenerator toolTipGenerator = new StandardXYToolTipGenerator();
+				//**//
+				System.out.println("begin read file line by line to draw chart");
+				while ((sCurrentLine = br1.readLine()) != null) {
+					if(line_nr == 0 || line_nr == 1 ){
+						line_nr++;
+						continue;
+					}
+					if(line_nr == 2){
+						progressBar_1.setMinimum(0);
+						progressBar_1.setMaximum((int)Integer.parseInt(sCurrentLine.trim()));
+						line_nr++;
+						continue;
+					}
+					items = sCurrentLine.split(";");
+					if(count == 0){
+						site_i = items[0];
+						tsp_i = items[1];
+						density_lkw_i = items[2];
+						density_pkw_i = items[3];						
+						series = new TimeSeries("P"+site_i.toString()+" LKW",Second.class);
+						series1 = new TimeSeries("P"+site_i.toString()+" PKW",Second.class);
+						//**//
+						result = new TimeSeriesCollection();
+						//**//
+					}else{
+						site_j = items[0];
+						tsp_j = items[1];
+						density_lkw_j = items[2];
+						density_pkw_j = items[3];
+						if(Integer.parseInt(site_j) == Integer.parseInt(site_i)){
+							//calculate absolut value of density sprung to next point
+							density_sprung_lkw = Math.abs(Float.parseFloat(density_lkw_i) - Float.parseFloat(density_lkw_j));
+							density_sprung_pkw = Math.abs(Float.parseFloat(density_pkw_i) - Float.parseFloat(density_pkw_j));
+							if(density_sprung_lkw>=(float)sprunglkw){										
+								try {
+									series.add(new Second(format.parse(tsp_j)), density_sprung_lkw);
+								} catch (ParseException e) {											
+									e.printStackTrace();
+								}										
+							}
+							if(density_sprung_pkw>=(float)sprungpkw){										
+								try {											
+									series1.add(new Second( format.parse(tsp_j)), density_sprung_pkw);
+								} catch (ParseException e) {
+									e.printStackTrace();
+								}									
+							}
+							site_i = site_j;
+							tsp_i = tsp_j;
+							density_lkw_i = density_lkw_j;
+							density_pkw_i = density_pkw_j;
+						}else{
+							result.addSeries(series);
+						 	result.addSeries(series1);
+						 	//**//
+						 	renderer = new StandardXYItemRenderer(StandardXYItemRenderer.DISCONTINUOUS_LINES, toolTipGenerator,null);
+						 	renderer.setShapesFilled(Boolean.TRUE);
+						 	rangeAxis = new NumberAxis();
+						 	subplot = new XYPlot(result,null,rangeAxis, renderer);
+						 	plot.add(subplot);
+						 	//**//
+							count = -1;									
+						}
+					}							
+					count++;
+					progressBar_1.setValue(progress_status);
+					progress_status++;
+					line_nr++;
+				}			
+				System.out.println("done!");
+				//add the last one
+				result.addSeries(series);
+				result.addSeries(series1);
+				//**//
+				renderer = new StandardXYItemRenderer(StandardXYItemRenderer.DISCONTINUOUS_LINES, toolTipGenerator,null);
+				renderer.setShapesFilled(Boolean.TRUE);
+				rangeAxis = new NumberAxis();
+				subplot = new XYPlot(result,null,rangeAxis, renderer);
+				plot.add(subplot);
+				plot.setGap(5.0);
+				plot.setOrientation(orientation);
+				JFreeChart chart = new JFreeChart("Show Sprung with condition LKW: "+sprunglkw+" PKW: "+sprungpkw, JFreeChart.DEFAULT_TITLE_FONT, plot, false);				
+				ChartFrame  frame1 = new ChartFrame("Density", chart);
+				Dimension fullScreen = Toolkit.getDefaultToolkit().getScreenSize(); 
+				frame1.setPreferredSize(fullScreen);
+				frame1.pack();
+				frame1.setVisible(true);
+				error = false;
+				} catch (FileNotFoundException ej) {
+					ej.printStackTrace();
+					error = true;
+					return null;
+				} catch (IOException ej) {
+					ej.printStackTrace();
+					error = true;
+					return null;
+				} catch(NumberFormatException el){
+					error = true;
+					JOptionPane.showConfirmDialog(null, "Please enter numbers only for density Sprung", "validate", JOptionPane.CANCEL_OPTION);
+					return null;
+				}
+			return null;
+		}
+		@Override
+		public void done(){
+			if(error){
+				progressBar_1.setForeground(Color.red);
+				btnNewButton_5.setEnabled(true);
+			}else{
+				progressBar_1.setValue(line_nr-3);
+				btnNewButton_5.setEnabled(true);
+			}
+		}		
+	}
+	// Task to show all density on chart (without set Sprung)
+	class show_density_on_chart_without_set_sprung extends SwingWorker<Void, Void>{
+		@Override
+		public Void doInBackground(){
+			reset_progress1();			
+			// how many rows in file
+			line_nr = 0;	
+			Font font = new Font("Dialog",Font.PLAIN,8);
+			//read csv file, calculate and display on chart
+			try{
+				String sCurrentLine;
+				FileInputStream fstream = new FileInputStream(filename.getText());
+				@SuppressWarnings({ "resource", "unused" })
+				BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
+				@SuppressWarnings("resource")
+				BufferedReader br1 = new BufferedReader(new InputStreamReader(fstream));
+				String[] items = null;
+				int count = 0;
+				int progress_status = 0;
+				String site_i = null;
+				String tsp_i = null;
+				String density_lkw_i = null;
+				String density_pkw_i = null;
+				String site_j;
+				String tsp_j;
+				String density_lkw_j;
+				String density_pkw_j;
+				float density_sprung_lkw;
+				float density_sprung_pkw;
+				//create chart									
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssX");
+				TimeSeries series = null;
+				TimeSeries series1 = null;
+				TimeSeriesCollection result = null;						
+					
+				//**//
+				@SuppressWarnings("unused")
+				XYDataset dataset = null;
+				XYItemRenderer renderer = null;
+				NumberAxis rangeAxis = null;
+				XYPlot subplot = null;
+				CombinedDomainXYPlot plot = new CombinedDomainXYPlot(new DateAxis("Time"));
+				//StandardXYItemRenderer renderer = null;					
+				
+				PlotOrientation orientation = PlotOrientation.VERTICAL;
+				XYToolTipGenerator toolTipGenerator = new StandardXYToolTipGenerator();
+				//**//
+				System.out.println("begin read file line by line to draw chart");
+				while ((sCurrentLine = br1.readLine()) != null) {
+					if(line_nr == 0 || line_nr == 1 ){
+						line_nr++;
+						continue;
+					}
+					if(line_nr == 2){
+						progressBar_1.setMinimum(0);
+						progressBar_1.setMaximum((int)Integer.parseInt(sCurrentLine.trim()));
+						line_nr++;
+						continue;
+					}
+					items = sCurrentLine.split(";");
+					if(count == 0){
+						site_i = items[0];
+						tsp_i = items[1];
+						density_lkw_i = items[2];
+						density_pkw_i = items[3];
+						series = new TimeSeries("P"+site_i.toString()+" LKW",Second.class);
+						series1 = new TimeSeries("P"+site_i.toString()+" PKW",Second.class);
+						//**//
+						result = new TimeSeriesCollection();
+						try {
+							series.add(new Second(format.parse(tsp_i)), 0);
+						} catch (ParseException e) {							
+							e.printStackTrace();
+							error = true;
+							return null;
+						}
+						try {
+							series1.add(new Second( format.parse(tsp_i)), 0);
+						} catch (ParseException e) {
+							e.printStackTrace();
+							error = true;
+							return null;
+						}
+						//**//
+					}else{
+						site_j = items[0];
+						tsp_j = items[1];
+						density_lkw_j = items[2];
+						density_pkw_j = items[3];
+						if(Integer.parseInt(site_j) == Integer.parseInt(site_i)){
+							//calculate absolut value of density sprung to next point
+							density_sprung_lkw = Float.parseFloat(density_lkw_i) - Float.parseFloat(density_lkw_j);
+							density_sprung_pkw = Float.parseFloat(density_pkw_i) - Float.parseFloat(density_pkw_j);
+							try {
+								series.add(new Second(format.parse(tsp_j)), density_sprung_lkw);
+							} catch (ParseException e) {											
+								e.printStackTrace();
+								error = true;
+								return null;
+							}										
+							try {											
+								series1.add(new Second( format.parse(tsp_j)), density_sprung_pkw);
+							} catch (ParseException e) {
+								error = true;
+								e.printStackTrace();
+							}						
+							
+							site_i = site_j;
+							tsp_i = tsp_j;
+							density_lkw_i = density_lkw_j;
+							density_pkw_i = density_pkw_j;
+						}else{
+							result.addSeries(series);
+						 	result.addSeries(series1);
+						 	//**//
+						 	renderer = new StandardXYItemRenderer(StandardXYItemRenderer.DISCONTINUOUS_LINES, toolTipGenerator,null);
+						 	//renderer.setShapesFilled(Boolean.TRUE);
+						 	rangeAxis = new NumberAxis(site_i);
+						 	rangeAxis.setTickLabelFont(font);
+							rangeAxis.setLabelFont(font);
+						 	subplot = new XYPlot(result,null,rangeAxis, renderer);						 	
+						 	plot.add(subplot);
+						 	//**//
+							count = -1;									
+						}
+					}							
+					count++;
+					progressBar_1.setValue(progress_status);
+					progress_status++;
+					line_nr++;
+				}			
+				System.out.println("done!");
+				//add the last one
+				result.addSeries(series);
+				result.addSeries(series1);
+				//**//
+				renderer = new StandardXYItemRenderer(StandardXYItemRenderer.DISCONTINUOUS_LINES, toolTipGenerator,null);
+				//renderer.setShapesFilled(Boolean.TRUE);
+				rangeAxis = new NumberAxis(site_i);
+				rangeAxis.setTickLabelFont(font);
+				rangeAxis.setLabelFont(font);
+				subplot = new XYPlot(result,null,rangeAxis, renderer);
+				plot.add(subplot);
+				plot.setGap(5.0);
+				plot.setOrientation(orientation);
+				JFreeChart chart = new JFreeChart("Show all Density", JFreeChart.DEFAULT_TITLE_FONT, plot, false);
+				ChartFrame  frame1 = new ChartFrame("Density", chart, true);
+				Dimension fullScreen = Toolkit.getDefaultToolkit().getScreenSize(); 
+				frame1.setPreferredSize(fullScreen);
+				frame1.pack();
+				frame1.setVisible(true);
+				error = false;
+			}catch (FileNotFoundException ej){
+				ej.printStackTrace();
+				error = true;
+				return null;
+			}catch (IOException ej) {
+				ej.printStackTrace();
+				error = true;
+				return null;
+			}
+			return null;			
+		}
+		@Override
+		public void done(){
+			if(error){
+				progressBar_1.setForeground(Color.red);
+				btnNewButton_2.setEnabled(true);
+			}else{
+				progressBar_1.setValue(line_nr-3);
+				btnNewButton_2.setEnabled(true);
+			}
+		}
+	}
+	
+	// Task to show Stoﬂwelle on chart
+	
 }
