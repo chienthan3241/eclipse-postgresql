@@ -677,7 +677,7 @@ public class Density_Calc extends JFrame {
 	 * funtion to calculate if next point has Density Sprung
 	 * return null or array[site,tsp] of next sprung point
 	 */
-	public String[] next_sprung(String next_point, String start_time,int duration_in_minute, float sprung, int fahr_streifen){		
+	public String[] next_sprung(String next_point, String start_time,int min_duration_in_minute, int max_duration_in_minute, float sprung, int fahr_streifen){		
 		if(next_point == null){
 			return null;
 		}
@@ -686,9 +686,9 @@ public class Density_Calc extends JFrame {
 				"(case when speed_pkw=0 then 0 else (flow_pkw/speed_pkw)/"+fahr_streifen+"::float end)::numeric(7,2) as density_pkw "+
 				" FROM mdp "+
 				" WHERE site = '"+next_point +"' AND "+
-				"  tsp > '"+start_time+"' AND " + 
-				" tsp <= (select TIMESTAMP '"+start_time+"' + '"+duration_in_minute*60+" seconds') " +
-				" ORDER BY tsp asc";
+				"  tsp >= (select TIMESTAMP '"+start_time+"' + '"+min_duration_in_minute*60+" seconds') AND " + 
+				" tsp <= (select TIMESTAMP '"+start_time+"' + '"+max_duration_in_minute*60+" seconds') " +
+				" ORDER BY tsp desc";
 		
 		boolean found = false;
 		String site_i = null;		
@@ -1176,7 +1176,7 @@ public class Density_Calc extends JFrame {
 			reset_progress1();			
 			// how many rows in file
 			line_nr = 0;		
-			Font font = new Font("Dialog",Font.PLAIN,8);
+			Font font = new Font("Dialog",Font.PLAIN,7);
 			//read csv file, calculate and display on chart
 			try{
 				int sprunglkw = Integer.parseInt(textField_2.getText());
@@ -1268,9 +1268,9 @@ public class Density_Calc extends JFrame {
 							result.addSeries(series);
 						 	result.addSeries(series1);
 						 	//**//
-						 	renderer = new StandardXYItemRenderer(StandardXYItemRenderer.DISCONTINUOUS_LINES, toolTipGenerator,null);
+						 	renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, toolTipGenerator,null);
 						 	renderer.setShapesFilled(Boolean.TRUE);
-						 	rangeAxis = new NumberAxis();
+						 	rangeAxis = new NumberAxis(site_i);
 						 	rangeAxis.setTickLabelFont(font);
 							rangeAxis.setLabelFont(font);
 						 	subplot = new XYPlot(result,null,rangeAxis, renderer);
@@ -1289,9 +1289,9 @@ public class Density_Calc extends JFrame {
 				result.addSeries(series);
 				result.addSeries(series1);
 				//**//
-				renderer = new StandardXYItemRenderer(StandardXYItemRenderer.DISCONTINUOUS_LINES, toolTipGenerator,null);
+				renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, toolTipGenerator,null);
 				renderer.setShapesFilled(Boolean.TRUE);
-				rangeAxis = new NumberAxis();
+				rangeAxis = new NumberAxis(site_i);
 				rangeAxis.setTickLabelFont(font);
 				rangeAxis.setLabelFont(font);
 				subplot = new XYPlot(result,null,rangeAxis, renderer);
@@ -1339,7 +1339,7 @@ public class Density_Calc extends JFrame {
 			reset_progress1();			
 			// how many rows in file
 			line_nr = 0;	
-			Font font = new Font("Dialog",Font.PLAIN,8);
+			Font font = new Font("Dialog",Font.PLAIN,7);
 			//read csv file, calculate and display on chart
 			try{
 				String sCurrentLine;
@@ -1511,7 +1511,7 @@ public class Density_Calc extends JFrame {
 		public Void doInBackground(){
 			reset_progress1();		
 			line_nr = 0;
-			Font font = new Font("Dialog",Font.PLAIN,8);
+			Font font = new Font("Dialog",Font.PLAIN,7);
 			try {
 				int sprunglkw = Integer.parseInt(textField_2.getText());
 				int sprungpkw = Integer.parseInt(textField_1.getText());
@@ -1599,9 +1599,11 @@ public class Density_Calc extends JFrame {
 									int induktiv_index3 = induktiv_index1+1;									
 									String tsp_tmp = tsp_j;
 									boolean flag = true;
+									distance = 0;
+									time_distance = 1;
 									while(loop_stoss<3){
 										//loop 3 times to calculate srpung of next and next next point after distance_in_km*10 minute
-										String [] reps = next_sprung(induktiv_arr[induktiv_index3],tsp_tmp,(int)Math.round(Float.parseFloat(distand_between(induktiv_arr[induktiv_index2],induktiv_arr[induktiv_index3]))*10),(float)density_sprung_pkw,fahr_streifen);
+										String [] reps = next_sprung(induktiv_arr[induktiv_index3],tsp_tmp,(int)Math.round(Float.parseFloat(distand_between(induktiv_arr[induktiv_index2],induktiv_arr[induktiv_index3]))*2),(int)Math.round(Float.parseFloat(distand_between(induktiv_arr[induktiv_index2],induktiv_arr[induktiv_index3]))*10),(float)density_sprung_pkw,fahr_streifen);
 										distance = distance + Float.parseFloat(distand_between(induktiv_arr[induktiv_index2],induktiv_arr[induktiv_index3]));
 										if(reps == null){
 											flag = false;
@@ -1613,7 +1615,7 @@ public class Density_Calc extends JFrame {
 										loop_stoss++;
 									}
 									if(flag){
-										time_distance = time_distance + Integer.parseInt(diff_in_minute(tsp_j, tsp_tmp));							
+										time_distance = time_distance + Integer.parseInt(diff_in_minute(tsp_j, tsp_tmp));										
 										try {
 											//add Stoßwelle point with weight = Stoßwelle speed
 											series.add(new Second(format.parse(tsp_j)), distance*60/time_distance);
