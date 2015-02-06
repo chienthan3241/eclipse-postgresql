@@ -94,4 +94,4 @@ ORDER BY
 + kết quả có thể hiện ra trên 1 table trong java, ghi vào file, hoặc thể hiện trên đồ thị
 + Density Sprung có thể thay đổi và được xác định bởi User
 + Code anh viết trong file [code/Density_Calc.java](https://github.com/chienthan3241/eclipse-postgresql/blob/master/code/Density_Calc.java)
-+ trong code này là 1 swing application có 2 tab; 1 tab để load dữ liệu từ DB, tính density tại từng điểm rồi ghi ra file csv ; tab 2 để load file csv ra tính Dichte Sprung , nếu Spung lớn thì sẽ hiện ra trên table, hoac hien ra tren do thi
++ trong code này là 1 swing application có 2 tab; 1 tab để load dữ liệu từ DB, tính density tại từng điểm rồi ghi ra file csv ; tab 2 để load file csv ra tính Dichte Sprung , nếu Spung lớn thì sẽ hiện ra trên table, hoac hien ra tren do thi.
